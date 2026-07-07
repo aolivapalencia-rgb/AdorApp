@@ -1,8 +1,10 @@
 const songsContainer = document.getElementById("songs");
 const searchInput = document.getElementById("search");
 const categoryFilter = document.getElementById("categoryFilter");
+const favoritesFilter = document.getElementById("favoritesFilter");
 
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+let showOnlyFavorites = false;
 
 const categories = [...new Set(songs.map(song => song.category))];
 
@@ -22,7 +24,6 @@ function renderSongs(list) {
 
   list.forEach(song => {
     const isFavorite = favorites.includes(song.id);
-
     const card = document.createElement("div");
     card.className = "song";
 
@@ -71,11 +72,22 @@ function filterSongs() {
     const matchesCategory =
       category === "Todas" || song.category === category;
 
-    return matchesText && matchesCategory;
+    const matchesFavorite =
+      !showOnlyFavorites || favorites.includes(song.id);
+
+    return matchesText && matchesCategory && matchesFavorite;
   });
 
   renderSongs(filtered);
 }
+
+favoritesFilter.addEventListener("click", () => {
+  showOnlyFavorites = !showOnlyFavorites;
+  favoritesFilter.textContent = showOnlyFavorites
+    ? "📚 Mostrar todos los cantos"
+    : "❤️ Mostrar solo favoritos";
+  filterSongs();
+});
 
 searchInput.addEventListener("input", filterSongs);
 categoryFilter.addEventListener("change", filterSongs);

@@ -68,3 +68,22 @@ header{
   font-size:28px;
   cursor:pointer;
 }
+
+#favoritesFilter{
+    display:block;
+    width:90%;
+    margin:15px auto;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#e91e63;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#favoritesFilter:hover{
+    background:#c2185b;
+}
+
