@@ -93,3 +93,13 @@ searchInput.addEventListener("input", filterSongs);
 categoryFilter.addEventListener("change", filterSongs);
 
 renderSongs(songs);
+
+const darkModeBtn = document.getElementById("darkModeBtn");
+
+darkModeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+
+  darkModeBtn.textContent = document.body.classList.contains("dark-mode")
+    ? "☀️ Modo claro"
+    : "🌙 Modo oscuro";
+});

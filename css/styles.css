@@ -100,3 +100,36 @@ header{
   font-size:16px;
   font-weight:bold;
 }
+
+#darkModeBtn{
+    margin-top:15px;
+    padding:10px 18px;
+    border:none;
+    border-radius:8px;
+    background:#222;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.dark-mode{
+    background:#121212;
+    color:white;
+}
+
+.dark-mode header{
+    background:#111;
+}
+
+.dark-mode .song{
+    background:#1e1e1e;
+    color:white;
+}
+
+.dark-mode input,
+.dark-mode select{
+    background:#2b2b2b;
+    color:white;
+    border:1px solid #555;
+}
+

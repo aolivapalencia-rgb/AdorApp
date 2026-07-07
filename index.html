@@ -11,22 +11,19 @@
 <header>
   <h1>AdorApp</h1>
   <p>Cantos cristianos con acordes</p>
+  <button id="darkModeBtn">🌙 Modo oscuro</button>
 </header>
 
 <main>
+  <input id="search" type="text" placeholder="Buscar canto..." />
 
-<input id="search" type="text" placeholder="Buscar canto..." />
-
-<select id="categoryFilter">
+  <select id="categoryFilter">
     <option value="Todas">Todas las categorías</option>
-</select>
+  </select>
 
-<button id="favoritesFilter">
-❤️ Mostrar solo favoritos
-</button>
+  <button id="favoritesFilter">❤️ Mostrar solo favoritos</button>
 
-<section id="songs"></section>
-
+  <section id="songs"></section>
 </main>
 
 <script src="data/songs.js"></script>
