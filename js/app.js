@@ -2,9 +2,11 @@ const songsContainer = document.getElementById("songs");
 const searchInput = document.getElementById("search");
 const categoryFilter = document.getElementById("categoryFilter");
 const favoritesFilter = document.getElementById("favoritesFilter");
+const darkModeBtn = document.getElementById("darkModeBtn");
 
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 let showOnlyFavorites = false;
+let selectedSong = null;
 
 const categories = [...new Set(songs.map(song => song.category))];
 
@@ -17,6 +19,52 @@ categories.forEach(category => {
 
 function saveFavorites() {
   localStorage.setItem("favorites", JSON.stringify(favorites));
+}
+
+function toggleFavorite(songId) {
+  if (favorites.includes(songId)) {
+    favorites = favorites.filter(id => id !== songId);
+  } else {
+    favorites.push(songId);
+  }
+
+  saveFavorites();
+
+  if (selectedSong) {
+    openSong(selectedSong.id);
+  } else {
+    filterSongs();
+  }
+}
+
+function openSong(songId) {
+  selectedSong = songs.find(song => song.id === songId);
+  const isFavorite = favorites.includes(selectedSong.id);
+
+  songsContainer.innerHTML = `
+    <div class="song-detail">
+      <button class="back-btn">← Volver</button>
+      <button class="favorite-btn detail-heart" data-id="${selectedSong.id}">
+        ${isFavorite ? "❤️" : "🤍"}
+      </button>
+
+      <h2>${selectedSong.title}</h2>
+      <p><strong>Autor:</strong> ${selectedSong.artist}</p>
+      <p><strong>Categoría:</strong> ${selectedSong.category}</p>
+      <p><strong>Tonalidad:</strong> ${selectedSong.tone}</p>
+      <p><strong>Acordes:</strong> ${selectedSong.chords.join(" ")}</p>
+      <pre>${selectedSong.lyrics}</pre>
+    </div>
+  `;
+
+  document.querySelector(".back-btn").addEventListener("click", () => {
+    selectedSong = null;
+    filterSongs();
+  });
+
+  document.querySelector(".detail-heart").addEventListener("click", () => {
+    toggleFavorite(selectedSong.id);
+  });
 }
 
 function renderSongs(list) {
@@ -39,26 +87,20 @@ function renderSongs(list) {
       <pre>${song.lyrics}</pre>
     `;
 
-    songsContainer.appendChild(card);
-  });
+    card.addEventListener("click", () => openSong(song.id));
 
-  document.querySelectorAll(".favorite-btn").forEach(button => {
-    button.addEventListener("click", () => {
-      const songId = Number(button.dataset.id);
-
-      if (favorites.includes(songId)) {
-        favorites = favorites.filter(id => id !== songId);
-      } else {
-        favorites.push(songId);
-      }
-
-      saveFavorites();
-      filterSongs();
+    card.querySelector(".favorite-btn").addEventListener("click", event => {
+      event.stopPropagation();
+      toggleFavorite(song.id);
     });
+
+    songsContainer.appendChild(card);
   });
 }
 
 function filterSongs() {
+  selectedSong = null;
+
   const text = searchInput.value.toLowerCase();
   const category = categoryFilter.value;
 
@@ -89,13 +131,6 @@ favoritesFilter.addEventListener("click", () => {
   filterSongs();
 });
 
-searchInput.addEventListener("input", filterSongs);
-categoryFilter.addEventListener("change", filterSongs);
-
-renderSongs(songs);
-
-const darkModeBtn = document.getElementById("darkModeBtn");
-
 darkModeBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark-mode");
 
@@ -103,3 +138,8 @@ darkModeBtn.addEventListener("click", () => {
     ? "☀️ Modo claro"
     : "🌙 Modo oscuro";
 });
+
+searchInput.addEventListener("input", filterSongs);
+categoryFilter.addEventListener("change", filterSongs);
+
+renderSongs(songs);

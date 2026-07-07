@@ -133,3 +133,34 @@ header{
     border:1px solid #555;
 }
 
+
+.song-detail{
+  background:white;
+  margin:20px;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+  position:relative;
+}
+
+.back-btn{
+  margin-bottom:15px;
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  background:#1565C0;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+}
+
+.detail-heart{
+  top:20px;
+  right:20px;
+}
+
+.dark-mode .song-detail{
+  background:#1e1e1e;
+  color:white;
+}
+
