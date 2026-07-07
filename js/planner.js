@@ -2,11 +2,45 @@ let plans = JSON.parse(localStorage.getItem("plans") || "[]");
 let currentPlanId = null;
 let currentCultSongIndex = 0;
 
+const plannerBtn = document.getElementById("plannerBtn");
+const NOTES = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+
+function normalizePlanSongs(plan) {
+    plan.songs = (plan.songs || []).map(item => {
+        if (typeof item === "object") return item;
+        const song = songs.find(s => String(s.id) === String(item));
+        return { id: item, tone: song ? song.tone : "C" };
+    });
+}
+
+plans.forEach(normalizePlanSongs);
+savePlans();
+
 function savePlans() {
     localStorage.setItem("plans", JSON.stringify(plans));
 }
 
-const plannerBtn = document.getElementById("plannerBtn");
+function transposeChord(chord, steps) {
+    const match = chord.match(/^([A-G][b#]?)(.*)$/);
+    if (!match) return chord;
+
+    const note = match[1];
+    const rest = match[2];
+    const index = NOTES.indexOf(note);
+
+    if (index === -1) return chord;
+
+    return NOTES[(index + steps + NOTES.length) % NOTES.length] + rest;
+}
+
+function getToneSteps(fromTone, toTone) {
+    return NOTES.indexOf(toTone) - NOTES.indexOf(fromTone);
+}
+
+function getTransposedChordsForPlan(song, targetTone) {
+    const steps = getToneSteps(song.tone, targetTone);
+    return song.chords.map(chord => transposeChord(chord, steps));
+}
 
 function openPlanner() {
     document.getElementById("songs").innerHTML = `
@@ -76,6 +110,9 @@ function openPlan(planId) {
     const plan = plans.find(p => String(p.id) === String(planId));
     if (!plan) return;
 
+    normalizePlanSongs(plan);
+    savePlans();
+
     document.getElementById("songs").innerHTML = `
         <div class="song-detail">
             <button class="back-btn" onclick="openPlanner()">← Volver</button>
@@ -84,6 +121,7 @@ function openPlan(planId) {
 
             <button class="planner-action" onclick="openSongSelector(${plan.id})">➕ Agregar cantos</button>
             <button class="planner-action" onclick="startCultMode(${plan.id})">▶️ Iniciar culto</button>
+            <button class="planner-action share-plan-btn" onclick="sharePlan(${plan.id})">📤 Compartir culto</button>
 
             <div id="planSongs"></div>
         </div>
@@ -101,21 +139,39 @@ function renderPlanSongs(plan) {
         return;
     }
 
-    planSongs.innerHTML = plan.songs.map((songId, index) => {
-        const song = songs.find(s => String(s.id) === String(songId));
+    planSongs.innerHTML = plan.songs.map((item, index) => {
+        const song = songs.find(s => String(s.id) === String(item.id));
         if (!song) return "";
 
         return `
             <div class="plan-song">
                 <h3 onclick="openSong(${song.id})">🎵 ${index + 1}. ${song.title}</h3>
                 <p>${song.artist || "Autor desconocido"}</p>
+                <p><strong>Tono del culto:</strong> ${item.tone}</p>
 
+                <button onclick="changePlanSongTone(${plan.id}, ${index}, -1)">− Tono</button>
+                <button onclick="changePlanSongTone(${plan.id}, ${index}, 1)">+ Tono</button>
                 <button onclick="moveSongUp(${plan.id}, ${index})">⬆️</button>
                 <button onclick="moveSongDown(${plan.id}, ${index})">⬇️</button>
                 <button onclick="removeSongFromPlan(${plan.id}, ${song.id})">🗑 Quitar</button>
             </div>
         `;
     }).join("");
+}
+
+function changePlanSongTone(planId, index, direction) {
+    const plan = plans.find(p => String(p.id) === String(planId));
+    if (!plan) return;
+
+    const item = plan.songs[index];
+    const currentIndex = NOTES.indexOf(item.tone);
+
+    if (currentIndex === -1) return;
+
+    item.tone = NOTES[(currentIndex + direction + NOTES.length) % NOTES.length];
+
+    savePlans();
+    openPlan(planId);
 }
 
 function moveSongUp(planId, index) {
@@ -162,16 +218,21 @@ function renderSongSelector(list) {
         <div class="plan-card" onclick="addSongToPlan(${song.id})">
             <strong>🎵 ${song.title}</strong>
             <p>${song.artist || "Autor desconocido"}</p>
+            <p>Tono original: ${song.tone}</p>
         </div>
     `).join("");
 }
 
 function addSongToPlan(songId) {
     const plan = plans.find(p => String(p.id) === String(currentPlanId));
-    if (!plan) return;
+    const song = songs.find(s => String(s.id) === String(songId));
+    if (!plan || !song) return;
 
-    if (!plan.songs.some(id => String(id) === String(songId))) {
-        plan.songs.push(songId);
+    if (!plan.songs.some(item => String(item.id) === String(songId))) {
+        plan.songs.push({
+            id: songId,
+            tone: song.tone
+        });
         savePlans();
     }
 
@@ -182,7 +243,7 @@ function removeSongFromPlan(planId, songId) {
     const plan = plans.find(p => String(p.id) === String(planId));
     if (!plan) return;
 
-    plan.songs = plan.songs.filter(id => String(id) !== String(songId));
+    plan.songs = plan.songs.filter(item => String(item.id) !== String(songId));
     savePlans();
     openPlan(planId);
 }
@@ -203,23 +264,31 @@ function showCultSong() {
     const plan = plans.find(p => String(p.id) === String(currentPlanId));
     if (!plan) return;
 
-    const songId = plan.songs[currentCultSongIndex];
-    const song = songs.find(s => String(s.id) === String(songId));
+    const item = plan.songs[currentCultSongIndex];
+    const song = songs.find(s => String(s.id) === String(item.id));
     if (!song) return;
 
+    const transposedChords = getTransposedChordsForPlan(song, item.tone);
+
     document.getElementById("songs").innerHTML = `
-        <div class="song-detail">
+        <div class="song-detail cult-mode-screen">
             <button class="back-btn" onclick="openPlan(${plan.id})">← Salir del culto</button>
 
+            <div class="cult-header">
+                <h2>${plan.name}</h2>
+                <p>${currentCultSongIndex + 1} de ${plan.songs.length}</p>
+            </div>
+
             <h2>${song.title}</h2>
-            <p><strong>${currentCultSongIndex + 1} de ${plan.songs.length}</strong></p>
-            <p><strong>Tono:</strong> ${song.tone}</p>
-            <p><strong>Acordes:</strong> ${song.chords.join(" ")}</p>
+            <p><strong>Tono del culto:</strong> ${item.tone}</p>
+            <p><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
 
             <pre class="lyrics-text">${song.lyrics}</pre>
 
-            <button class="planner-action" onclick="previousCultSong()">⬅️ Anterior</button>
-            <button class="planner-action" onclick="nextCultSong()">Siguiente ➡️</button>
+            <div class="cult-nav">
+                <button class="planner-action" onclick="previousCultSong()">⬅️ Anterior</button>
+                <button class="planner-action" onclick="nextCultSong()">Siguiente ➡️</button>
+            </div>
         </div>
     `;
 }
@@ -240,6 +309,30 @@ function nextCultSong() {
         showCultSong();
     } else {
         alert("Fin del culto.");
+    }
+}
+
+function sharePlan(planId) {
+    const plan = plans.find(p => String(p.id) === String(planId));
+    if (!plan) return;
+
+    let text = `📋 ${plan.name}\n\n`;
+
+    plan.songs.forEach((item, index) => {
+        const song = songs.find(s => String(s.id) === String(item.id));
+        if (song) {
+            text += `${index + 1}. ${song.title} — Tono: ${item.tone}\n`;
+        }
+    });
+
+    if (navigator.share) {
+        navigator.share({
+            title: plan.name,
+            text: text
+        });
+    } else {
+        navigator.clipboard.writeText(text);
+        alert("Culto copiado al portapapeles.");
     }
 }
 

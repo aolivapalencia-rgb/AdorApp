@@ -374,3 +374,18 @@ header p{
     color:white;
 }
 
+
+/* ================= AdorApp v1.6 ================= */
+
+.cult-mode-screen{
+    min-height:100vh;
+}
+
+.plan-song p strong{
+    color:#1565c0;
+}
+
+.dark-mode .plan-song p strong{
+    color:#90caf9;
+}
+
