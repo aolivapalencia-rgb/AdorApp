@@ -87,3 +87,16 @@ header{
     background:#c2185b;
 }
 
+
+#favoritesFilter{
+  display:block;
+  width:90%;
+  margin:15px auto 20px auto;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#e91e63;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+}
