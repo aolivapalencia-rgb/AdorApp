@@ -1,4 +1,4 @@
-const plans = JSON.parse(localStorage.getItem("plans") || "[]");
+let plans = JSON.parse(localStorage.getItem("plans") || "[]");
 
 function savePlans() {
     localStorage.setItem("plans", JSON.stringify(plans));
@@ -22,32 +22,9 @@ function openPlanner() {
             <div id="plansList"></div>
         </div>
     `;
+
+    renderPlansList();
 }
-
-if (plannerBtn) {
-    plannerBtn.addEventListener("click", openPlanner);
-}
-
-document.addEventListener("click", (event) => {
-    if (event.target.id === "savePlanBtn") {
-        const planName = document.getElementById("planName").value.trim();
-
-        if (!planName) {
-            alert("Escribe un nombre para el culto.");
-            return;
-        }
-
-        plans.push({
-            id: Date.now(),
-            name: planName,
-            songs: []
-        });
-
-        savePlans();
-        alert("Culto guardado correctamente.");
-        openPlanner();
-    }
-});
 
 function saveCurrentPlan() {
     const input = document.getElementById("planName");
@@ -67,4 +44,25 @@ function saveCurrentPlan() {
     savePlans();
     alert("Culto guardado correctamente.");
     openPlanner();
+}
+
+function renderPlansList() {
+    const plansList = document.getElementById("plansList");
+    if (!plansList) return;
+
+    if (plans.length === 0) {
+        plansList.innerHTML = "<p>No hay cultos guardados todavía.</p>";
+        return;
+    }
+
+    plansList.innerHTML = plans.map(plan => `
+        <div class="plan-card">
+            <strong>📋 ${plan.name}</strong>
+            <p>${plan.songs.length} cantos</p>
+        </div>
+    `).join("");
+}
+
+if (plannerBtn) {
+    plannerBtn.addEventListener("click", openPlanner);
 }
