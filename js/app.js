@@ -67,7 +67,12 @@ function openSong(songId) {
 
   songsContainer.innerHTML = `
     <div class="song-detail">
-      <button class="back-btn">← Volver</button>
+
+    <button id="projectionBtn" class="projection-btn">
+        🎥 Proyección
+    </button>
+
+    <button class="back-btn">← Volver</button>      <button class="back-btn">← Volver</button>
       <button class="favorite-btn detail-heart" data-id="${selectedSong.id}">
         ${isFavorite ? "❤️" : "🤍"}
       </button>
@@ -106,7 +111,11 @@ function openSong(songId) {
   document.querySelector(".detail-heart").addEventListener("click", () => {
     toggleFavorite(selectedSong.id);
   });
+const projectionBtn = document.getElementById("projectionBtn");
 
+projectionBtn.addEventListener("click", () => {
+    document.body.classList.toggle("projection-mode");
+});
   document.getElementById("upTone").addEventListener("click", () => {
     transpose++;
     openSong(selectedSong.id);
