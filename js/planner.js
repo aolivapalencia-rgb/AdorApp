@@ -77,9 +77,21 @@ function openPlan(planId) {
             </button>
 
             <div id="planSongs">
-                ${plan.songs.length === 0 ? "<p>Este culto aún no tiene cantos.</p>" : ""}
-            </div>
-        </div>
+    ${
+        plan.songs.length === 0
+        ? "<p>Este culto aún no tiene cantos.</p>"
+        : plan.songs.map(songId => {
+            const song = songs.find(s => s.id === songId);
+
+            return `
+                <div class="plan-song" onclick="openSong(${song.id})">
+                    <h3>🎵 ${song.title}</h3>
+                    <p>${song.artist}</p>
+                </div>
+            `;
+        }).join("")
+    }
+</div>
     `;
 }
 
