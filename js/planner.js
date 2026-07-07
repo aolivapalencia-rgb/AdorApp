@@ -22,7 +22,7 @@ function openPlanner() {
             <div id="plansList"></div>
         </div>
     `;
-
+    renderCurrentPlanSongs(plan);
     renderPlansList();
 }
 
@@ -162,4 +162,26 @@ function addSongToCurrentPlan(songId) {
     }
 
     openPlan(currentPlanId);
+}
+
+function renderCurrentPlanSongs(plan) {
+    const planSongs = document.getElementById("planSongs");
+    if (!planSongs) return;
+
+    if (plan.songs.length === 0) {
+        planSongs.innerHTML = "<p>Este culto aún no tiene cantos.</p>";
+        return;
+    }
+
+    planSongs.innerHTML = plan.songs.map(songId => {
+        const song = songs.find(s => String(s.id) === String(songId));
+        if (!song) return "";
+
+        return `
+            <div class="plan-song" onclick="openSong(${song.id})">
+                <h3>🎵 ${song.title}</h3>
+                <p>${song.artist || "Autor desconocido"}</p>
+            </div>
+        `;
+    }).join("");
 }
