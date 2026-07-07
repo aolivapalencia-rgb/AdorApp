@@ -55,7 +55,7 @@ function renderPlansList() {
     }
 
     plansList.innerHTML = plans.map(plan => `
-        <div class="plan-card" onclick="openPlan(${plan.id})">
+        <div class="plan-card" data-id="${plan.id}">
             <strong>📋 ${plan.name}</strong>
             <p>${plan.songs.length} cantos</p>
         </div>
@@ -86,3 +86,11 @@ function openPlan(planId) {
 if (plannerBtn) {
     plannerBtn.addEventListener("click", openPlanner);
 }
+
+document.addEventListener("click", (event) => {
+    const card = event.target.closest(".plan-card");
+    if (!card) return;
+
+    const planId = Number(card.dataset.id);
+    openPlan(planId);
+});
