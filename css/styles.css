@@ -300,3 +300,77 @@ header p{
     font-size:18px;
     font-weight:bold;
 }
+
+/* ================= AdorApp v1.5 ================= */
+
+.plan-card,
+.plan-song{
+    background:white;
+    margin:14px 0;
+    padding:16px;
+    border-radius:14px;
+    box-shadow:0 3px 10px rgba(0,0,0,.12);
+}
+
+.plan-song h3{
+    margin:0 0 8px 0;
+}
+
+.plan-song button,
+.plan-card button{
+    margin:5px 4px 0 0;
+    padding:9px 12px;
+    border:none;
+    border-radius:9px;
+    background:#1565c0;
+    color:white;
+    font-weight:bold;
+}
+
+.plan-song button:last-child,
+.plan-card button{
+    background:#d32f2f;
+}
+
+.share-plan-btn{
+    background:#25D366 !important;
+}
+
+.cult-header{
+    text-align:center;
+    padding:10px;
+    border-radius:12px;
+    background:#1565c0;
+    color:white;
+    margin-bottom:15px;
+}
+
+.cult-nav{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-top:20px;
+}
+
+.cult-nav button{
+    flex:1;
+}
+
+.recent-box{
+    background:#e3f2fd;
+    padding:12px;
+    border-radius:12px;
+    margin:15px 0;
+}
+
+.dark-mode .plan-card,
+.dark-mode .plan-song{
+    background:#1e1e1e;
+    color:white;
+}
+
+.dark-mode .recent-box{
+    background:#263238;
+    color:white;
+}
+

@@ -274,3 +274,20 @@ window.addEventListener("load", () => {
     if (splash) splash.classList.add("hide");
   }, 2000);
 });
+
+/* ================= Historial de cantos ================= */
+
+function saveRecentSong(songId) {
+  let recentSongs = JSON.parse(localStorage.getItem("recentSongs") || "[]");
+  recentSongs = recentSongs.filter(id => String(id) !== String(songId));
+  recentSongs.unshift(songId);
+  recentSongs = recentSongs.slice(0, 10);
+  localStorage.setItem("recentSongs", JSON.stringify(recentSongs));
+}
+
+const originalOpenSong = openSong;
+
+openSong = function(songId) {
+  saveRecentSong(songId);
+  originalOpenSong(songId);
+};
