@@ -7,6 +7,9 @@ const darkModeBtn = document.getElementById("darkModeBtn");
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 let showOnlyFavorites = false;
 let selectedSong = null;
+let transpose = 0;
+
+const notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
 
 const categories = [...new Set(songs.map(song => song.category))];
 
@@ -19,6 +22,24 @@ categories.forEach(category => {
 
 function saveFavorites() {
   localStorage.setItem("favorites", JSON.stringify(favorites));
+}
+
+function transposeChord(chord, steps) {
+  const match = chord.match(/^([A-G][b#]?)(.*)$/);
+  if (!match) return chord;
+
+  const note = match[1];
+  const rest = match[2];
+  const index = notes.indexOf(note);
+
+  if (index === -1) return chord;
+
+  const newIndex = (index + steps + notes.length) % notes.length;
+  return notes[newIndex] + rest;
+}
+
+function getTransposedChords(song) {
+  return song.chords.map(chord => transposeChord(chord, transpose));
 }
 
 function toggleFavorite(songId) {
@@ -40,6 +61,8 @@ function toggleFavorite(songId) {
 function openSong(songId) {
   selectedSong = songs.find(song => song.id === songId);
   const isFavorite = favorites.includes(selectedSong.id);
+  const currentTone = transposeChord(selectedSong.tone, transpose);
+  const transposedChords = getTransposedChords(selectedSong);
 
   songsContainer.innerHTML = `
     <div class="song-detail">
@@ -51,19 +74,36 @@ function openSong(songId) {
       <h2>${selectedSong.title}</h2>
       <p><strong>Autor:</strong> ${selectedSong.artist}</p>
       <p><strong>Categoría:</strong> ${selectedSong.category}</p>
-      <p><strong>Tonalidad:</strong> ${selectedSong.tone}</p>
-      <p><strong>Acordes:</strong> ${selectedSong.chords.join(" ")}</p>
+
+      <div class="transpose-box">
+        <button id="downTone">−</button>
+        <span>Tono: ${currentTone}</span>
+        <button id="upTone">+</button>
+      </div>
+
+      <p><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
       <pre>${selectedSong.lyrics}</pre>
     </div>
   `;
 
   document.querySelector(".back-btn").addEventListener("click", () => {
     selectedSong = null;
+    transpose = 0;
     filterSongs();
   });
 
   document.querySelector(".detail-heart").addEventListener("click", () => {
     toggleFavorite(selectedSong.id);
+  });
+
+  document.getElementById("upTone").addEventListener("click", () => {
+    transpose++;
+    openSong(selectedSong.id);
+  });
+
+  document.getElementById("downTone").addEventListener("click", () => {
+    transpose--;
+    openSong(selectedSong.id);
   });
 }
 
@@ -87,7 +127,10 @@ function renderSongs(list) {
       <pre>${song.lyrics}</pre>
     `;
 
-    card.addEventListener("click", () => openSong(song.id));
+    card.addEventListener("click", () => {
+      transpose = 0;
+      openSong(song.id);
+    });
 
     card.querySelector(".favorite-btn").addEventListener("click", event => {
       event.stopPropagation();

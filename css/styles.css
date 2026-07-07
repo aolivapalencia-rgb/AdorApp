@@ -164,3 +164,53 @@ header{
   color:white;
 }
 
+
+.song-detail{
+    background:#fff;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.12);
+}
+
+.transpose-box{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:15px;
+    margin:20px 0;
+}
+
+.transpose-box button{
+    width:45px;
+    height:45px;
+    border:none;
+    border-radius:50%;
+    background:#1565c0;
+    color:#fff;
+    font-size:24px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.transpose-box span{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.back-btn{
+    background:#1565c0;
+    color:#fff;
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:17px;
+    margin-bottom:15px;
+}
+
+.detail-heart{
+    position:absolute;
+    right:20px;
+    top:20px;
+    font-size:34px;
+}
