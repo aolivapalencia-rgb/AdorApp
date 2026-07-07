@@ -17,17 +17,6 @@ function saveFavorites() {
   localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
-function toggleFavorite(songId) {
-  if (favorites.includes(songId)) {
-    favorites = favorites.filter(id => id !== songId);
-  } else {
-    favorites.push(songId);
-  }
-
-  saveFavorites();
-  filterSongs();
-}
-
 function renderSongs(list) {
   songsContainer.innerHTML = "";
 
@@ -38,7 +27,7 @@ function renderSongs(list) {
     card.className = "song";
 
     card.innerHTML = `
-      <button class="favorite-btn" onclick="toggleFavorite(${song.id})">
+      <button class="favorite-btn" data-id="${song.id}">
         ${isFavorite ? "❤️" : "🤍"}
       </button>
       <h2>${song.title}</h2>
@@ -50,6 +39,21 @@ function renderSongs(list) {
     `;
 
     songsContainer.appendChild(card);
+  });
+
+  document.querySelectorAll(".favorite-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const songId = Number(button.dataset.id);
+
+      if (favorites.includes(songId)) {
+        favorites = favorites.filter(id => id !== songId);
+      } else {
+        favorites.push(songId);
+      }
+
+      saveFavorites();
+      filterSongs();
+    });
   });
 }
 
