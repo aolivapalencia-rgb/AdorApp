@@ -73,7 +73,6 @@ function openSong(songId) {
     </button>
 
     <button class="back-btn">← Volver</button>      <button class="back-btn">← Volver</button>
-      <button class="favorite-btn detail-heart" data-id="${selectedSong.id}">
         ${isFavorite ? "❤️" : "🤍"}
       </button>
 
