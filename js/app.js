@@ -232,3 +232,28 @@ document.addEventListener("click", (event) => {
     }, 30);
   }
 });
+
+document.addEventListener("click", (event) => {
+  if (event.target.id === "toggleScroll") {
+    if (scrollInterval) {
+      clearInterval(scrollInterval);
+      scrollInterval = null;
+      event.target.textContent = "▶";
+    } else {
+      event.target.textContent = "⏸";
+      scrollSpeed = scrollSpeed || 2;
+      scrollInterval = setInterval(() => {
+        document.documentElement.scrollTop += scrollSpeed;
+        document.body.scrollTop += scrollSpeed;
+      }, 50);
+    }
+  }
+
+  if (event.target.id === "fastScroll") {
+    scrollSpeed += 1;
+  }
+
+  if (event.target.id === "slowScroll") {
+    scrollSpeed = Math.max(1, scrollSpeed - 1);
+  }
+});
