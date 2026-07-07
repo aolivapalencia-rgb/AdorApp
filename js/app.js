@@ -8,6 +8,7 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 let showOnlyFavorites = false;
 let selectedSong = null;
 let transpose = 0;
+let lyricSize = 18;
 
 const notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
 
@@ -81,8 +82,14 @@ function openSong(songId) {
         <button id="upTone">+</button>
       </div>
 
+      <div class="font-box">
+        <button id="smallText">A−</button>
+        <span>Letra</span>
+        <button id="bigText">A+</button>
+      </div>
+
       <p><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
-      <pre>${selectedSong.lyrics}</pre>
+      <pre class="lyrics-text" style="font-size:${lyricSize}px">${selectedSong.lyrics}</pre>
     </div>
   `;
 
@@ -103,6 +110,16 @@ function openSong(songId) {
 
   document.getElementById("downTone").addEventListener("click", () => {
     transpose--;
+    openSong(selectedSong.id);
+  });
+
+  document.getElementById("bigText").addEventListener("click", () => {
+    lyricSize += 2;
+    openSong(selectedSong.id);
+  });
+
+  document.getElementById("smallText").addEventListener("click", () => {
+    if (lyricSize > 12) lyricSize -= 2;
     openSong(selectedSong.id);
   });
 }

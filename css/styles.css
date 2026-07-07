@@ -214,3 +214,28 @@ header{
     top:20px;
     font-size:34px;
 }
+.font-box{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    margin:20px 0;
+}
+
+.font-box button{
+    width:55px;
+    height:55px;
+    border:none;
+    border-radius:50%;
+    background:#1565c0;
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 3px 8px rgba(0,0,0,.3);
+}
+
+.font-box span{
+    font-size:26px;
+    font-weight:bold;
+}
