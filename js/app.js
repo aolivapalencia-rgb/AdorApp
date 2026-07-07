@@ -208,13 +208,14 @@ categoryFilter.addEventListener("change", filterSongs);
 
 renderSongs(songs);
 
+
 document.addEventListener("click", (event) => {
   if (event.target.id === "slowScroll") {
     scrollSpeed = Math.max(1, scrollSpeed - 1);
   }
 
   if (event.target.id === "fastScroll") {
-    scrollSpeed++;
+    scrollSpeed += 1;
   }
 
   if (event.target.id === "toggleScroll") {
@@ -225,35 +226,11 @@ document.addEventListener("click", (event) => {
       return;
     }
 
+    scrollSpeed = scrollSpeed || 2;
     event.target.textContent = "⏸";
 
     scrollInterval = setInterval(() => {
-      window.scrollBy(0, scrollSpeed || 1);
-    }, 30);
-  }
-});
-
-document.addEventListener("click", (event) => {
-  if (event.target.id === "toggleScroll") {
-    if (scrollInterval) {
-      clearInterval(scrollInterval);
-      scrollInterval = null;
-      event.target.textContent = "▶";
-    } else {
-      event.target.textContent = "⏸";
-      scrollSpeed = scrollSpeed || 2;
-      scrollInterval = setInterval(() => {
-        document.documentElement.scrollTop += scrollSpeed;
-        document.body.scrollTop += scrollSpeed;
-      }, 50);
-    }
-  }
-
-  if (event.target.id === "fastScroll") {
-    scrollSpeed += 1;
-  }
-
-  if (event.target.id === "slowScroll") {
-    scrollSpeed = Math.max(1, scrollSpeed - 1);
+      window.scrollBy(0, scrollSpeed);
+    }, 40);
   }
 });
