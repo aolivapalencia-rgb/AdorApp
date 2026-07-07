@@ -54,3 +54,17 @@ header{
   border-radius:8px;
   background:white;
 }
+
+.song{
+  position:relative;
+}
+
+.favorite-btn{
+  position:absolute;
+  top:15px;
+  right:15px;
+  border:none;
+  background:transparent;
+  font-size:28px;
+  cursor:pointer;
+}

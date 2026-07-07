@@ -2,7 +2,8 @@ const songsContainer = document.getElementById("songs");
 const searchInput = document.getElementById("search");
 const categoryFilter = document.getElementById("categoryFilter");
 
-// Llenar categorías
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
 const categories = [...new Set(songs.map(song => song.category))];
 
 categories.forEach(category => {
@@ -12,14 +13,34 @@ categories.forEach(category => {
   categoryFilter.appendChild(option);
 });
 
+function saveFavorites() {
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+}
+
+function toggleFavorite(songId) {
+  if (favorites.includes(songId)) {
+    favorites = favorites.filter(id => id !== songId);
+  } else {
+    favorites.push(songId);
+  }
+
+  saveFavorites();
+  filterSongs();
+}
+
 function renderSongs(list) {
   songsContainer.innerHTML = "";
 
   list.forEach(song => {
+    const isFavorite = favorites.includes(song.id);
+
     const card = document.createElement("div");
     card.className = "song";
 
     card.innerHTML = `
+      <button class="favorite-btn" onclick="toggleFavorite(${song.id})">
+        ${isFavorite ? "❤️" : "🤍"}
+      </button>
       <h2>${song.title}</h2>
       <p><strong>Autor:</strong> ${song.artist}</p>
       <p><strong>Categoría:</strong> ${song.category}</p>
