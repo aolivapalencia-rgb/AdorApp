@@ -9,9 +9,10 @@ let showOnlyFavorites = false;
 let selectedSong = null;
 let transpose = 0;
 let lyricSize = 18;
+let scrollInterval = null;
+let scrollSpeed = 2;
 
 const notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-
 const categories = [...new Set(songs.map(song => song.category))];
 
 categories.forEach(category => {
@@ -25,6 +26,13 @@ function saveFavorites() {
   localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
+function stopAutoScroll() {
+  if (scrollInterval) {
+    clearInterval(scrollInterval);
+    scrollInterval = null;
+  }
+}
+
 function transposeChord(chord, steps) {
   const match = chord.match(/^([A-G][b#]?)(.*)$/);
   if (!match) return chord;
@@ -32,7 +40,6 @@ function transposeChord(chord, steps) {
   const note = match[1];
   const rest = match[2];
   const index = notes.indexOf(note);
-
   if (index === -1) return chord;
 
   const newIndex = (index + steps + notes.length) % notes.length;
@@ -60,6 +67,9 @@ function toggleFavorite(songId) {
 }
 
 function openSong(songId) {
+  stopAutoScroll();
+  document.body.classList.remove("projection-mode");
+
   selectedSong = songs.find(song => song.id === songId);
   const isFavorite = favorites.includes(selectedSong.id);
   const currentTone = transposeChord(selectedSong.tone, transpose);
@@ -67,18 +77,15 @@ function openSong(songId) {
 
   songsContainer.innerHTML = `
     <div class="song-detail">
-
-    <button id="projectionBtn" class="projection-btn">
-        🎥 Proyección
-    </button>
-
-    <button class="back-btn">← Volver</button>      <button class="back-btn">← Volver</button>
+      <button id="projectionBtn" class="projection-btn">🎥 Proyección</button>
+      <button class="back-btn">← Volver</button>
+      <button class="favorite-btn detail-heart" data-id="${selectedSong.id}">
         ${isFavorite ? "❤️" : "🤍"}
       </button>
 
       <h2>${selectedSong.title}</h2>
-      <p><strong>Autor:</strong> ${selectedSong.artist}</p>
-      <p><strong>Categoría:</strong> ${selectedSong.category}</p>
+      <p class="song-meta"><strong>Autor:</strong> ${selectedSong.artist}</p>
+      <p class="song-meta"><strong>Categoría:</strong> ${selectedSong.category}</p>
 
       <div class="transpose-box">
         <button id="downTone">−</button>
@@ -91,30 +98,36 @@ function openSong(songId) {
         <span>Letra</span>
         <button id="bigText">A+</button>
       </div>
-<div class="scroll-box">
-    <button id="slowScroll">−</button>
-    <button id="toggleScroll">▶</button>
-    <button id="fastScroll">+</button>
-</div>
-      <p><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
+
+      <div class="scroll-box">
+        <button id="slowScroll">−</button>
+        <button id="toggleScroll">▶</button>
+        <button id="fastScroll">+</button>
+      </div>
+
+      <p class="chords-line"><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
       <pre class="lyrics-text" style="font-size:${lyricSize}px">${selectedSong.lyrics}</pre>
     </div>
   `;
 
   document.querySelector(".back-btn").addEventListener("click", () => {
+    stopAutoScroll();
+    document.body.classList.remove("projection-mode");
     selectedSong = null;
     transpose = 0;
     filterSongs();
   });
 
-  document.querySelector(".detail-heart").addEventListener("click", () => {
+  document.querySelector(".detail-heart").addEventListener("click", event => {
+    event.stopPropagation();
     toggleFavorite(selectedSong.id);
   });
-const projectionBtn = document.getElementById("projectionBtn");
 
-projectionBtn.addEventListener("click", () => {
-    document.body.classList.toggle("projection-mode");
-});
+  document.getElementById("projectionBtn").addEventListener("click", () => {
+    document.body.classList.add("projection-mode");
+    window.scrollTo({ top: songsContainer.offsetTop, behavior: "smooth" });
+  });
+
   document.getElementById("upTone").addEventListener("click", () => {
     transpose++;
     openSong(selectedSong.id);
@@ -133,6 +146,27 @@ projectionBtn.addEventListener("click", () => {
   document.getElementById("smallText").addEventListener("click", () => {
     if (lyricSize > 12) lyricSize -= 2;
     openSong(selectedSong.id);
+  });
+
+  document.getElementById("slowScroll").addEventListener("click", () => {
+    scrollSpeed = Math.max(1, scrollSpeed - 1);
+  });
+
+  document.getElementById("fastScroll").addEventListener("click", () => {
+    scrollSpeed += 1;
+  });
+
+  document.getElementById("toggleScroll").addEventListener("click", event => {
+    if (scrollInterval) {
+      stopAutoScroll();
+      event.target.textContent = "▶";
+      return;
+    }
+
+    event.target.textContent = "⏸";
+    scrollInterval = setInterval(() => {
+      window.scrollBy(0, scrollSpeed);
+    }, 40);
   });
 }
 
@@ -172,6 +206,8 @@ function renderSongs(list) {
 
 function filterSongs() {
   selectedSong = null;
+  stopAutoScroll();
+  document.body.classList.remove("projection-mode");
 
   const text = searchInput.value.toLowerCase();
   const category = categoryFilter.value;
@@ -183,11 +219,8 @@ function filterSongs() {
       song.category.toLowerCase().includes(text) ||
       song.lyrics.toLowerCase().includes(text);
 
-    const matchesCategory =
-      category === "Todas" || song.category === category;
-
-    const matchesFavorite =
-      !showOnlyFavorites || favorites.includes(song.id);
+    const matchesCategory = category === "Todas" || song.category === category;
+    const matchesFavorite = !showOnlyFavorites || favorites.includes(song.id);
 
     return matchesText && matchesCategory && matchesFavorite;
   });
@@ -205,7 +238,6 @@ favoritesFilter.addEventListener("click", () => {
 
 darkModeBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark-mode");
-
   darkModeBtn.textContent = document.body.classList.contains("dark-mode")
     ? "☀️ Modo claro"
     : "🌙 Modo oscuro";
@@ -214,37 +246,17 @@ darkModeBtn.addEventListener("click", () => {
 searchInput.addEventListener("input", filterSongs);
 categoryFilter.addEventListener("change", filterSongs);
 
-renderSongs(songs);
-
-
-document.addEventListener("click", (event) => {
-  if (event.target.id === "slowScroll") {
-    scrollSpeed = Math.max(1, scrollSpeed - 1);
-  }
-
-  if (event.target.id === "fastScroll") {
-    scrollSpeed += 1;
-  }
-
-  if (event.target.id === "toggleScroll") {
-    if (scrollInterval) {
-      clearInterval(scrollInterval);
-      scrollInterval = null;
-      event.target.textContent = "▶";
-      return;
-    }
-
-    scrollSpeed = scrollSpeed || 2;
-    event.target.textContent = "⏸";
-
-    scrollInterval = setInterval(() => {
-      window.scrollBy(0, scrollSpeed);
-    }, 40);
+document.addEventListener("click", () => {
+  if (document.body.classList.contains("projection-mode")) {
+    document.body.classList.remove("projection-mode");
+    stopAutoScroll();
   }
 });
 
-document.addEventListener("click", (event) => {
+songsContainer.addEventListener("click", event => {
   if (event.target.id === "projectionBtn") {
-    document.body.classList.toggle("projection-mode");
+    event.stopPropagation();
   }
 });
+
+renderSongs(songs);
