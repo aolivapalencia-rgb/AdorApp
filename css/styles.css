@@ -32,3 +32,14 @@ header{
 .song h2{
   margin-top:0;
 }
+
+#categoryFilter{
+  width:90%;
+  display:block;
+  margin:0 auto 20px auto;
+  padding:12px;
+  font-size:16px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  background:white;
+}
