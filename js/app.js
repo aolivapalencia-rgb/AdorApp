@@ -266,3 +266,10 @@ if ("serviceWorker" in navigator) {
     .then(() => console.log("Service Worker registrado"))
     .catch((error) => console.log("Error registrando Service Worker:", error));
 }
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const splash = document.getElementById("splashScreen");
+    if (splash) splash.classList.add("hide");
+  }, 2000);
+});
