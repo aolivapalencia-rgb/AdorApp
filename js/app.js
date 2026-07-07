@@ -87,7 +87,11 @@ function openSong(songId) {
         <span>Letra</span>
         <button id="bigText">A+</button>
       </div>
-
+<div class="scroll-box">
+    <button id="slowScroll">−</button>
+    <button id="toggleScroll">▶</button>
+    <button id="fastScroll">+</button>
+</div>
       <p><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
       <pre class="lyrics-text" style="font-size:${lyricSize}px">${selectedSong.lyrics}</pre>
     </div>
