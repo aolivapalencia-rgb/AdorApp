@@ -185,3 +185,12 @@ function renderCurrentPlanSongs(plan) {
         `;
     }).join("");
 }
+
+function removeSongFromPlan(planId, songId) {
+    const plan = plans.find(p => String(p.id) === String(planId));
+    if (!plan) return;
+
+    plan.songs = plan.songs.filter(id => String(id) !== String(songId));
+    savePlans();
+    openPlan(planId);
+}
