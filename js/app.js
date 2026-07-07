@@ -207,3 +207,28 @@ searchInput.addEventListener("input", filterSongs);
 categoryFilter.addEventListener("change", filterSongs);
 
 renderSongs(songs);
+
+document.addEventListener("click", (event) => {
+  if (event.target.id === "slowScroll") {
+    scrollSpeed = Math.max(1, scrollSpeed - 1);
+  }
+
+  if (event.target.id === "fastScroll") {
+    scrollSpeed++;
+  }
+
+  if (event.target.id === "toggleScroll") {
+    if (scrollInterval) {
+      clearInterval(scrollInterval);
+      scrollInterval = null;
+      event.target.textContent = "▶";
+      return;
+    }
+
+    event.target.textContent = "⏸";
+
+    scrollInterval = setInterval(() => {
+      window.scrollBy(0, scrollSpeed || 1);
+    }, 30);
+  }
+});
