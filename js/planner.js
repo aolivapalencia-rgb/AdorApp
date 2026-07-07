@@ -15,7 +15,7 @@ function openPlanner() {
 
             <input id="planName" type="text" placeholder="Nombre del culto, ejemplo: Domingo AM">
 
-            <button id="savePlanBtn" class="planner-action">
+            <button id="savePlanBtn" class="planner-action" onclick="saveCurrentPlan()">
                 💾 Guardar culto
             </button>
 
@@ -48,3 +48,23 @@ document.addEventListener("click", (event) => {
         openPlanner();
     }
 });
+
+function saveCurrentPlan() {
+    const input = document.getElementById("planName");
+    const planName = input ? input.value.trim() : "";
+
+    if (!planName) {
+        alert("Escribe un nombre para el culto.");
+        return;
+    }
+
+    plans.push({
+        id: Date.now(),
+        name: planName,
+        songs: []
+    });
+
+    savePlans();
+    alert("Culto guardado correctamente.");
+    openPlanner();
+}
