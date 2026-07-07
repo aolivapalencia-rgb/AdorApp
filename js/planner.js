@@ -1,4 +1,5 @@
 let plans = JSON.parse(localStorage.getItem("plans") || "[]");
+let currentPlanId = null;
 
 function savePlans() {
     localStorage.setItem("plans", JSON.stringify(plans));
@@ -21,7 +22,9 @@ function openPlanner() {
 
             <div id="plansList"></div>
         </div>
-        renderPlansList();
+    `;
+
+    renderPlansList();
 }
 
 function saveCurrentPlan() {
@@ -53,7 +56,7 @@ function renderPlansList() {
     }
 
     plansList.innerHTML = plans.map(plan => `
-        <div class="plan-card" data-id="${plan.id}">
+        <div class="plan-card" onclick="openPlan(${plan.id})">
             <strong>📋 ${plan.name}</strong>
             <p>${plan.songs.length} cantos</p>
         </div>
@@ -61,7 +64,8 @@ function renderPlansList() {
 }
 
 function openPlan(planId) {
-    const plan = plans.find(p => p.id === planId);
+    currentPlanId = planId;
+    const plan = plans.find(p => String(p.id) === String(planId));
     if (!plan) return;
 
     document.getElementById("songs").innerHTML = `
@@ -74,38 +78,38 @@ function openPlan(planId) {
                 ➕ Agregar cantos
             </button>
 
-            <div id="planSongs">
-    ${
-        plan.songs.length === 0
-        ? "<p>Este culto aún no tiene cantos.</p>"
-        : plan.songs.map(songId => {
-            const song = songs.find(s => s.id === songId);
-
-            return `
-                <div class="plan-song" onclick="openSong(${song.id})">
-                    <h3>🎵 ${song.title}</h3>
-                    <p>${song.artist}</p>
-                </div>
-            `;
-        }).join("")
-    }
-</div>
+            <div id="planSongs"></div>
+        </div>
     `;
+
+    renderPlanSongs(plan);
 }
 
-if (plannerBtn) {
-    plannerBtn.addEventListener("click", openPlanner);
+function renderPlanSongs(plan) {
+    const planSongs = document.getElementById("planSongs");
+    if (!planSongs) return;
+
+    if (plan.songs.length === 0) {
+        planSongs.innerHTML = "<p>Este culto aún no tiene cantos.</p>";
+        return;
+    }
+
+    planSongs.innerHTML = plan.songs.map(songId => {
+        const song = songs.find(s => String(s.id) === String(songId));
+        if (!song) return "";
+
+        return `
+            <div class="plan-song" onclick="openSong(${song.id})">
+                <h3>🎵 ${song.title}</h3>
+                <p>${song.artist || "Autor desconocido"}</p>
+
+                <button onclick="event.stopPropagation(); removeSongFromPlan(${plan.id}, ${song.id})">
+                    🗑 Quitar
+                </button>
+            </div>
+        `;
+    }).join("");
 }
-
-document.addEventListener("click", (event) => {
-    const card = event.target.closest(".plan-card");
-    if (!card) return;
-
-    const planId = Number(card.dataset.id);
-    openPlan(planId);
-});
-
-let currentPlanId = null;
 
 function openSongSelector(planId) {
     currentPlanId = planId;
@@ -122,66 +126,31 @@ function openSongSelector(planId) {
         </div>
     `;
 
-    renderSongSelectorList(songs);
+    renderSongSelector(songs);
 }
 
-function renderSongSelectorList(list) {
-    const container = document.getElementById("songSelectorList");
-    if (!container) return;
+function renderSongSelector(list) {
+    const songSelectorList = document.getElementById("songSelectorList");
+    if (!songSelectorList) return;
 
-    container.innerHTML = list.map(song => `
-        <div class="plan-card" onclick="addSongToCurrentPlan(${song.id})">
+    songSelectorList.innerHTML = list.map(song => `
+        <div class="plan-card" onclick="addSongToPlan(${song.id})">
             <strong>🎵 ${song.title}</strong>
             <p>${song.artist || "Autor desconocido"}</p>
         </div>
     `).join("");
 }
 
-document.addEventListener("input", (event) => {
-    if (event.target.id === "songSelectorSearch") {
-        const term = event.target.value.toLowerCase();
-
-        const filtered = songs.filter(song =>
-            song.title.toLowerCase().includes(term) ||
-            (song.artist || "").toLowerCase().includes(term)
-        );
-
-        renderSongSelectorList(filtered);
-    }
-});
-
-function addSongToCurrentPlan(songId) {
-    const plan = plans.find(p => p.id === currentPlanId);
+function addSongToPlan(songId) {
+    const plan = plans.find(p => String(p.id) === String(currentPlanId));
     if (!plan) return;
 
-    if (!plan.songs.includes(songId)) {
+    if (!plan.songs.some(id => String(id) === String(songId))) {
         plan.songs.push(songId);
         savePlans();
     }
 
     openPlan(currentPlanId);
-}
-
-function renderCurrentPlanSongs(plan) {
-    const planSongs = document.getElementById("planSongs");
-    if (!planSongs) return;
-
-    if (plan.songs.length === 0) {
-        planSongs.innerHTML = "<p>Este culto aún no tiene cantos.</p>";
-        return;
-    }
-
-    planSongs.innerHTML = plan.songs.map(songId => {
-        const song = songs.find(s => String(s.id) === String(songId));
-        if (!song) return "";
-
-        return `
-            <div class="plan-song" onclick="openSong(${song.id})">
-                <h3>🎵 ${song.title}</h3>
-                <p>${song.artist || "Autor desconocido"}</p>
-            </div>
-        `;
-    }).join("");
 }
 
 function removeSongFromPlan(planId, songId) {
@@ -193,27 +162,19 @@ function removeSongFromPlan(planId, songId) {
     openPlan(planId);
 }
 
-function renderCurrentPlanSongs(plan) {
-    const planSongs = document.getElementById("planSongs");
-    if (!planSongs) return;
+document.addEventListener("input", event => {
+    if (event.target.id === "songSelectorSearch") {
+        const term = event.target.value.toLowerCase();
 
-    if (plan.songs.length === 0) {
-        planSongs.innerHTML = "<p>Este culto aún no tiene cantos.</p>";
-        return;
+        const filtered = songs.filter(song =>
+            song.title.toLowerCase().includes(term) ||
+            (song.artist || "").toLowerCase().includes(term)
+        );
+
+        renderSongSelector(filtered);
     }
+});
 
-    planSongs.innerHTML = plan.songs.map(songId => {
-        const song = songs.find(s => String(s.id) === String(songId));
-        if (!song) return "";
-
-        return `
-            <div class="plan-song" onclick="openSong(${song.id})">
-                <h3>🎵 ${song.title}</h3>
-                <p>${song.artist || "Autor desconocido"}</p>
-                <button onclick="event.stopPropagation(); removeSongFromPlan(${plan.id}, ${song.id})">
-                    🗑 Quitar
-                </button>
-            </div>
-        `;
-    }).join("");
+if (plannerBtn) {
+    plannerBtn.addEventListener("click", openPlanner);
 }
