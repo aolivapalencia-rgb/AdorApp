@@ -83,7 +83,6 @@ function openSong(songId) {
         ${isFavorite ? "❤️" : "🤍"}
       </button>
 
-            <button id="addToPlanBtn" class="planner-action">➕ Agregar al culto</button>
 
       <h2>${selectedSong.title}</h2>
       <p class="song-meta"><strong>Autor:</strong> ${selectedSong.artist}</p>
