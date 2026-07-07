@@ -72,7 +72,7 @@ function openPlan(planId) {
             <h2>📋 ${plan.name}</h2>
             <p>${plan.songs.length} cantos agregados</p>
 
-            <button class="planner-action">
+            <button class="planner-action" onclick="openSongSelector(${plan.id})">
                 ➕ Agregar cantos
             </button>
 
@@ -94,3 +94,60 @@ document.addEventListener("click", (event) => {
     const planId = Number(card.dataset.id);
     openPlan(planId);
 });
+
+let currentPlanId = null;
+
+function openSongSelector(planId) {
+    currentPlanId = planId;
+
+    document.getElementById("songs").innerHTML = `
+        <div class="song-detail">
+            <button class="back-btn" onclick="openPlan(${planId})">← Volver</button>
+            <h2>➕ Agregar cantos</h2>
+            <p>Toca un canto para agregarlo al culto.</p>
+
+            <input id="songSelectorSearch" type="text" placeholder="Buscar canto...">
+
+            <div id="songSelectorList"></div>
+        </div>
+    `;
+
+    renderSongSelectorList(songs);
+}
+
+function renderSongSelectorList(list) {
+    const container = document.getElementById("songSelectorList");
+    if (!container) return;
+
+    container.innerHTML = list.map(song => `
+        <div class="plan-card" onclick="addSongToCurrentPlan(${song.id})">
+            <strong>🎵 ${song.title}</strong>
+            <p>${song.artist || "Autor desconocido"}</p>
+        </div>
+    `).join("");
+}
+
+document.addEventListener("input", (event) => {
+    if (event.target.id === "songSelectorSearch") {
+        const term = event.target.value.toLowerCase();
+
+        const filtered = songs.filter(song =>
+            song.title.toLowerCase().includes(term) ||
+            (song.artist || "").toLowerCase().includes(term)
+        );
+
+        renderSongSelectorList(filtered);
+    }
+});
+
+function addSongToCurrentPlan(songId) {
+    const plan = plans.find(p => p.id === currentPlanId);
+    if (!plan) return;
+
+    if (!plan.songs.includes(songId)) {
+        plan.songs.push(songId);
+        savePlans();
+    }
+
+    openPlan(currentPlanId);
+}
