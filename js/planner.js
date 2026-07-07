@@ -15,7 +15,7 @@ function openPlanner() {
 
             <input id="planName" type="text" placeholder="Nombre del culto, ejemplo: Domingo AM">
 
-            <button id="savePlanBtn" class="planner-action" onclick="saveCurrentPlan()">
+            <button class="planner-action" onclick="saveCurrentPlan()">
                 💾 Guardar culto
             </button>
 
@@ -55,55 +55,34 @@ function renderPlansList() {
     }
 
     plansList.innerHTML = plans.map(plan => `
-        <div class="plan-card">
+        <div class="plan-card" onclick="openPlan(${plan.id})">
             <strong>📋 ${plan.name}</strong>
             <p>${plan.songs.length} cantos</p>
         </div>
     `).join("");
 }
 
+function openPlan(planId) {
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+
+    document.getElementById("songs").innerHTML = `
+        <div class="song-detail">
+            <button class="back-btn" onclick="openPlanner()">← Volver</button>
+            <h2>📋 ${plan.name}</h2>
+            <p>${plan.songs.length} cantos agregados</p>
+
+            <button class="planner-action">
+                ➕ Agregar cantos
+            </button>
+
+            <div id="planSongs">
+                ${plan.songs.length === 0 ? "<p>Este culto aún no tiene cantos.</p>" : ""}
+            </div>
+        </div>
+    `;
+}
+
 if (plannerBtn) {
     plannerBtn.addEventListener("click", openPlanner);
 }
-document.addEventListener("click", (event) => {
-
-    if (event.target.id !== "addToPlanBtn") return;
-
-    if (plans.length === 0) {
-        alert("Primero crea un culto en el Planificador.");
-        return;
-    }
-
-    const opciones = plans
-        .map((p, i) => `${i + 1}. ${p.name}`)
-        .join("\n");
-
-    const seleccion = prompt(
-        "¿A qué culto deseas agregar este canto?\n\n" + opciones
-    );
-
-    if (!seleccion) return;
-
-    const indice = parseInt(seleccion) - 1;
-
-    if (indice < 0 || indice >= plans.length) {
-        alert("Opción inválida.");
-        return;
-    }
-
-    const plan = plans[indice];
-
-    if (!selectedSong) {
-        alert("No hay un canto seleccionado.");
-        return;
-    }
-
-    if (!plan.songs.includes(selectedSong.id)) {
-        plan.songs.push(selectedSong.id);
-        savePlans();
-        alert("✅ Canto agregado a " + plan.name);
-    } else {
-        alert("Ese canto ya está en ese culto.");
-    }
-
-});
