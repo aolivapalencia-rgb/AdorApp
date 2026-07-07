@@ -10,30 +10,7 @@ const songs = [
 Se mueve la mano de Dios
 En su palabra viva, todo es posible
 Si puedes creer`
-Todo es posible, si puedes creer
-Se mueve la mano de Dios
-En su palabra viva, todo es posible
-Si puedes creer
-
-Todo es posible, si puedes creer
-Se mueve la mano de Dios
-En su palabra viva, todo es posible
-Si puedes creer
-
-Todo es posible, si puedes creer
-Se mueve la mano de Dios
-En su palabra viva, todo es posible
-Si puedes creer
-
-Todo es posible, si puedes creer
-Se mueve la mano de Dios
-En su palabra viva, todo es posible
-Si puedes creer
-
-Todo es posible, si puedes creer
-Se mueve la mano de Dios
-En su palabra viva, todo es posible
-Si puedes creer  },
+  },
   {
     id: 2,
     title: "Con mis labios",
