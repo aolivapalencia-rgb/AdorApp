@@ -65,3 +65,45 @@ function renderPlansList() {
 if (plannerBtn) {
     plannerBtn.addEventListener("click", openPlanner);
 }
+document.addEventListener("click", (event) => {
+
+    if (event.target.id !== "addToPlanBtn") return;
+
+    if (plans.length === 0) {
+        alert("Primero crea un culto en el Planificador.");
+        return;
+    }
+
+    const opciones = plans
+        .map((p, i) => `${i + 1}. ${p.name}`)
+        .join("\n");
+
+    const seleccion = prompt(
+        "¿A qué culto deseas agregar este canto?\n\n" + opciones
+    );
+
+    if (!seleccion) return;
+
+    const indice = parseInt(seleccion) - 1;
+
+    if (indice < 0 || indice >= plans.length) {
+        alert("Opción inválida.");
+        return;
+    }
+
+    const plan = plans[indice];
+
+    if (!selectedSong) {
+        alert("No hay un canto seleccionado.");
+        return;
+    }
+
+    if (!plan.songs.includes(selectedSong.id)) {
+        plan.songs.push(selectedSong.id);
+        savePlans();
+        alert("✅ Canto agregado a " + plan.name);
+    } else {
+        alert("Ese canto ya está en ese culto.");
+    }
+
+});
