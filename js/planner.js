@@ -27,3 +27,24 @@ function openPlanner() {
 if (plannerBtn) {
     plannerBtn.addEventListener("click", openPlanner);
 }
+
+document.addEventListener("click", (event) => {
+    if (event.target.id === "savePlanBtn") {
+        const planName = document.getElementById("planName").value.trim();
+
+        if (!planName) {
+            alert("Escribe un nombre para el culto.");
+            return;
+        }
+
+        plans.push({
+            id: Date.now(),
+            name: planName,
+            songs: []
+        });
+
+        savePlans();
+        alert("Culto guardado correctamente.");
+        openPlanner();
+    }
+});
