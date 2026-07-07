@@ -243,3 +243,9 @@ document.addEventListener("click", (event) => {
     }, 40);
   }
 });
+
+document.addEventListener("click", (event) => {
+  if (event.target.id === "projectionBtn") {
+    document.body.classList.toggle("projection-mode");
+  }
+});
