@@ -42,7 +42,6 @@ function saveCurrentPlan() {
     });
 
     savePlans();
-    alert("Culto guardado correctamente.");
     openPlanner();
 }
 
