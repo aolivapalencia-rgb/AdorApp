@@ -838,3 +838,19 @@ body.cult-active main {
     color: white;
     border-color: #444;
 }
+
+
+/* ================= Importador desde imagen ================= */
+
+.image-import-btn {
+    background: #6a1b9a !important;
+}
+
+#ocrProgress {
+    font-weight: bold;
+    color: #1565c0;
+}
+
+.dark-mode #ocrProgress {
+    color: #90caf9;
+}

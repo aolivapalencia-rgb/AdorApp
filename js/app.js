@@ -383,3 +383,135 @@ function saveNewSong() {
 if (addSongBtn) {
   addSongBtn.addEventListener("click", openAddSongEditor);
 }
+
+
+/* ================= Importar canto desde imagen ================= */
+
+const importImageBtn = document.getElementById("importImageBtn");
+const imageImportInput = document.getElementById("imageImportInput");
+
+function openImageImport() {
+  imageImportInput.click();
+}
+
+async function processImportedImage(file) {
+  if (!file) return;
+
+  songsContainer.innerHTML = `
+    <div class="song-detail">
+      <button class="back-btn" onclick="filterSongs()">← Volver</button>
+      <h2>📷 Analizando imagen...</h2>
+      <p>Esto puede tardar unos segundos.</p>
+      <p id="ocrProgress">Preparando lectura...</p>
+    </div>
+  `;
+
+  try {
+    if (!window.Tesseract) {
+      alert("No se pudo cargar el lector de imágenes. Revisa tu conexión e intenta otra vez.");
+      filterSongs();
+      return;
+    }
+
+    const result = await Tesseract.recognize(file, "eng", {
+      logger: m => {
+        const progress = document.getElementById("ocrProgress");
+        if (progress && m.status) {
+          const percent = m.progress ? Math.round(m.progress * 100) : "";
+          progress.textContent = `${m.status} ${percent}%`;
+        }
+      }
+    });
+
+    const text = result.data.text.trim();
+
+    openOCRReviewEditor(text);
+
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo leer la imagen.");
+    filterSongs();
+  }
+}
+
+function detectChordsFromText(text) {
+  const chordRegex = /\b[A-G](?:#|b)?(?:m|maj7|m7|7|sus4|sus2|dim|aug|add9)?(?:\/[A-G](?:#|b)?)?\b/g;
+  const found = text.match(chordRegex) || [];
+  return [...new Set(found)];
+}
+
+function openOCRReviewEditor(rawText) {
+  const chords = detectChordsFromText(rawText);
+  const guessedTone = chords[0] || "C";
+
+  songsContainer.innerHTML = `
+    <div class="song-detail">
+      <button class="back-btn" onclick="filterSongs()">← Volver</button>
+      <h2>📷 Revisar canto importado</h2>
+
+      <div class="editor-help">
+        Revisa el texto antes de guardar. El lector puede equivocarse en algunas palabras o acordes.
+      </div>
+
+      <label>Título</label>
+      <input id="ocrSongTitle" type="text" placeholder="Título del canto">
+
+      <label>Autor / Grupo</label>
+      <input id="ocrSongArtist" type="text" placeholder="Autor o grupo">
+
+      <label>Categoría</label>
+      <input id="ocrSongCategory" type="text" value="Adoración">
+
+      <label>Tono original</label>
+      <input id="ocrSongTone" type="text" value="${guessedTone}">
+
+      <label>Acordes detectados</label>
+      <textarea id="ocrSongChords">${chords.join(" ")}</textarea>
+
+      <label>Letra con acordes</label>
+      <textarea id="ocrSongLyrics">${rawText}</textarea>
+
+      <button class="planner-action" onclick="saveOCRSong()">💾 Guardar canto</button>
+    </div>
+  `;
+}
+
+function saveOCRSong() {
+  const title = document.getElementById("ocrSongTitle").value.trim();
+  const artist = document.getElementById("ocrSongArtist").value.trim() || "Autor desconocido";
+  const category = document.getElementById("ocrSongCategory").value.trim() || "Adoración";
+  const tone = document.getElementById("ocrSongTone").value.trim() || "C";
+  const chordsText = document.getElementById("ocrSongChords").value.trim();
+  const lyrics = document.getElementById("ocrSongLyrics").value.trim();
+
+  if (!title || !lyrics) {
+    alert("Revisa que tenga título y letra.");
+    return;
+  }
+
+  const newSong = {
+    id: Date.now(),
+    title,
+    artist,
+    category,
+    tone,
+    chords: chordsText ? chordsText.split(/\s+/) : [tone],
+    lyrics,
+    status: "completo"
+  };
+
+  customSongs.push(newSong);
+  saveCustomSongs();
+
+  alert("Canto importado correctamente.");
+  filterSongs();
+}
+
+if (importImageBtn && imageImportInput) {
+  importImageBtn.addEventListener("click", openImageImport);
+
+  imageImportInput.addEventListener("change", event => {
+    const file = event.target.files[0];
+    processImportedImage(file);
+  });
+}
