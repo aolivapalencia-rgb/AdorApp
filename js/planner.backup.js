@@ -58,7 +58,6 @@ function getTransposedChordsForPlan(song, targetTone) {
 }
 
 function openPlanner() {
-    document.body.classList.remove("cult-active");
     releaseWakeLock();
     document.body.classList.remove("cult-pro-active");
 
@@ -125,7 +124,6 @@ function renderPlansList() {
 }
 
 function openPlan(planId) {
-    document.body.classList.remove("cult-active");
     releaseWakeLock();
     document.body.classList.remove("cult-pro-active");
 
@@ -239,7 +237,6 @@ function moveSongDown(planId, index) {
 }
 
 function openSongSelector(planId) {
-    document.body.classList.remove("cult-active");
     currentPlanId = planId;
 
     document.getElementById("songs").innerHTML = `
@@ -316,105 +313,63 @@ function showCultSong() {
     if (!song) return;
 
     const transposedChords = getTransposedChordsForPlan(song, item.tone);
-
-    document.body.classList.add("cult-active");
+    document.body.classList.add("cult-pro-active");
 
     document.getElementById("songs").innerHTML = `
-        <div class="cult-pro-screen">
-            <div class="cult-pro-top">
-                <button onclick="openPlan(${plan.id})">← Salir</button>
-                <span>${currentCultSongIndex + 1} / ${plan.songs.length}</span>
-                <button onclick="showCultList()">☰ Lista</button>
+        <div class="cult-pro-screen" id="cultProScreen">
+            <div class="cult-topbar">
+                <button onclick="openPlan(${plan.id})">✕</button>
+                <div>
+                    <strong>${plan.name}</strong>
+                    <span>${currentCultSongIndex + 1} / ${plan.songs.length}</span>
+                </div>
+                <button onclick="toggleCultList()">☰</button>
             </div>
 
-            <div class="cult-pro-title">
+            <div class="cult-song-body">
                 <h1>${song.title}</h1>
-                <p>${plan.name}</p>
+                <p class="cult-artist">${song.artist || ""}</p>
+
+                <div class="cult-tone-control">
+                    <button onclick="changeCurrentCultTone(-1)">◀</button>
+                    <span>${item.tone}</span>
+                    <button onclick="changeCurrentCultTone(1)">▶</button>
+                </div>
+
+                <p class="cult-chords"><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
+                <pre class="lyrics-text cult-lyrics" style="font-size:${cultLyricSize}px">${song.lyrics}</pre>
             </div>
 
-            <div class="cult-pro-tone">
-                <button onclick="changeCurrentCultTone(-1)">◀</button>
-                <strong>${item.tone}</strong>
-                <button onclick="changeCurrentCultTone(1)">▶</button>
+            <div class="cult-bottom-bar">
+                <button onclick="previousCultSong()">⬅️</button>
+                <button onclick="decreaseCultLyricSize()">A−</button>
+                <button onclick="toggleWakeLock()">🔒</button>
+                <button onclick="increaseCultLyricSize()">A+</button>
+                <button onclick="nextCultSong()">➡️</button>
             </div>
 
-            <p class="cult-pro-chords">
-                <strong>Acordes:</strong> ${transposedChords.join(" ")}
-            </p>
-
-            <pre id="cultLyrics" class="cult-pro-lyrics" style="font-size:${lyricSize}px">${song.lyrics}</pre>
-
-            <div class="cult-pro-controls">
-                <button onclick="previousCultSong()">⬅</button>
-                <button onclick="decreaseCultText()">A−</button>
-                <button onclick="toggleCultScroll()">▶</button>
-                <button onclick="increaseCultText()">A+</button>
-                <button onclick="nextCultSong()">➡</button>
+            <div id="cultQuickList" class="cult-quick-list hidden">
+                <h3>Lista del culto</h3>
+                ${renderCultQuickList(plan)}
             </div>
         </div>
     `;
 
-    enableCultGestures();
+    setupCultGestures();
 }
 
-function changeCurrentCultTone(direction) {
-    const plan = plans.find(p => String(p.id) === String(currentPlanId));
-    if (!plan) return;
-
-    const item = plan.songs[currentCultSongIndex];
-    const currentIndex = NOTES.indexOf(item.tone);
-    if (currentIndex === -1) return;
-
-    item.tone = NOTES[(currentIndex + direction + NOTES.length) % NOTES.length];
-    savePlans();
-    showCultSong();
-}
-
-function increaseCultText() {
-    lyricSize += 2;
-    showCultSong();
-}
-
-function decreaseCultText() {
-    if (lyricSize > 12) lyricSize -= 2;
-    showCultSong();
-}
-
-function toggleCultScroll() {
-    if (scrollInterval) {
-        clearInterval(scrollInterval);
-        scrollInterval = null;
-        return;
-    }
-
-    scrollInterval = setInterval(() => {
-        window.scrollBy(0, scrollSpeed);
-    }, 80);
-}
-
-function showCultList() {
-    const plan = plans.find(p => String(p.id) === String(currentPlanId));
-    if (!plan) return;
-
-    const list = plan.songs.map((item, index) => {
+function renderCultQuickList(plan) {
+    return plan.songs.map((item, index) => {
         const song = songs.find(s => String(s.id) === String(item.id));
         if (!song) return "";
-        return `<button onclick="jumpToCultSong(${index})">${index + 1}. ${song.title} — ${item.tone}</button>`;
+        const active = index === currentCultSongIndex ? "active" : "";
+        return `<div class="cult-list-item ${active}" onclick="jumpToCultSong(${index})">${index + 1}. ${song.title} <span>${item.tone}</span></div>`;
     }).join("");
+}
 
-    document.getElementById("songs").innerHTML = `
-        <div class="cult-pro-screen">
-            <div class="cult-pro-top">
-                <button onclick="showCultSong()">← Volver</button>
-                <span>Lista del culto</span>
-                <button onclick="openPlan(${plan.id})">Salir</button>
-            </div>
-
-            <div class="cult-list">
-                ${list}
-            </div>
-        </div>
-    `;
+function toggleCultList() {
+    const list = document.getElementById("cultQuickList");
+    if (list) list.classList.toggle("hidden");
 }
 
 function jumpToCultSong(index) {
@@ -422,24 +377,7 @@ function jumpToCultSong(index) {
     showCultSong();
 }
 
-function enableCultGestures() {
-    let startX = 0;
-
-    document.ontouchstart = e => {
-        startX = e.touches[0].clientX;
-    };
-
-    document.ontouchend = e => {
-        const endX = e.changedTouches[0].clientX;
-        const diff = endX - startX;
-
-        if (diff > 80) previousCultSong();
-        if (diff < -80) nextCultSong();
-    };
-}
-
 function previousCultSong() {
-    stopAutoScroll();
     if (currentCultSongIndex > 0) {
         currentCultSongIndex--;
         showCultSong();
@@ -447,7 +385,6 @@ function previousCultSong() {
 }
 
 function nextCultSong() {
-    stopAutoScroll();
     const plan = plans.find(p => String(p.id) === String(currentPlanId));
     if (!plan) return;
 
