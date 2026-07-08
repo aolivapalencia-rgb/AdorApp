@@ -413,7 +413,7 @@ async function processImportedImage(file) {
       return;
     }
 
-    const result = await Tesseract.recognize(file, "eng", {
+    const result = await Tesseract.recognize(file, "spa+eng", {
       logger: m => {
         const progress = document.getElementById("ocrProgress");
         if (progress && m.status) {
@@ -471,6 +471,7 @@ function openOCRReviewEditor(rawText) {
       <label>Letra con acordes</label>
       <textarea id="ocrSongLyrics">${rawText}</textarea>
 
+      <button class="planner-action" onclick="cleanCurrentOCRText()">🧹 Ordenar letra</button>
       <button class="planner-action" onclick="saveOCRSong()">💾 Guardar canto</button>
     </div>
   `;
@@ -514,4 +515,50 @@ if (importImageBtn && imageImportInput) {
     const file = event.target.files[0];
     processImportedImage(file);
   });
+}
+
+
+/* ===== Limpieza OCR acordes/letra ===== */
+
+function isChordLine(line) {
+  const clean = line.trim();
+  if (!clean) return false;
+  return /^([A-G](#|b)?(m|maj7|m7|7|sus|sus2|sus4|dim|aug|add9)?(\/[A-G](#|b)?)?\s*)+$/.test(clean);
+}
+
+function cleanOCRLyrics(raw) {
+  let lines = raw
+    .replace(/lacu(erda|erda\.net|da\.net)/gi, "")
+    .replace(/Follow.*$/gim, "")
+    .replace(/on Bandsintown/gi, "")
+    .replace(/ESPERO QUE LES GUSTE MUCHO/gi, "")
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l);
+
+  let output = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    if (isChordLine(line) && lines[i + 1]) {
+      output.push(`[${line.replace(/\s+/g, " ")}] ${lines[i + 1]}`);
+      i++;
+    } else {
+      output.push(line);
+    }
+  }
+
+  return output.join("\n");
+}
+
+function cleanCurrentOCRText() {
+  const area = document.getElementById("ocrSongLyrics");
+  const chordBox = document.getElementById("ocrSongChords");
+  if (!area) return;
+
+  area.value = cleanOCRLyrics(area.value);
+
+  const chords = detectChordsFromText(area.value);
+  if (chordBox) chordBox.value = chords.join(" ");
 }
