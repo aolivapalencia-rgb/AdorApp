@@ -300,21 +300,41 @@ const addSongBtn = document.getElementById("addSongBtn");
 function openAddSongEditor() {
   stopAutoScroll();
   document.body.classList.remove("projection-mode");
+  document.body.classList.remove("cult-active");
 
   songsContainer.innerHTML = `
     <div class="song-detail">
       <button class="back-btn" onclick="filterSongs()">← Volver</button>
       <h2>🎵 Agregar nuevo canto</h2>
-      <p>Ingresa la letra y acordes del canto.</p>
 
-      <input id="newSongTitle" type="text" placeholder="Título del canto">
-      <input id="newSongArtist" type="text" placeholder="Autor o grupo">
-      <input id="newSongCategory" type="text" placeholder="Categoría, ejemplo: Adoración">
-      <input id="newSongTone" type="text" placeholder="Tono original, ejemplo: C">
+      <div class="editor-help">
+        <strong>Formato recomendado:</strong><br>
+        Usa acordes entre corchetes en la letra.<br><br>
+        Ejemplo:<br>
+        [C] Todo es posible<br>
+        [G] Para el que cree
+      </div>
 
-      <textarea id="newSongChords" placeholder="Acordes separados por espacios, ejemplo: C G Am F"></textarea>
+      <label>Título</label>
+      <input id="newSongTitle" type="text" placeholder="Ejemplo: Todo es posible">
 
-      <textarea id="newSongLyrics" placeholder="Letra del canto..."></textarea>
+      <label>Autor / Grupo</label>
+      <input id="newSongArtist" type="text" placeholder="Ejemplo: Ricardo Rodríguez">
+
+      <label>Categoría</label>
+      <input id="newSongCategory" type="text" placeholder="Ejemplo: Alabanza">
+
+      <label>Tono original</label>
+      <input id="newSongTone" type="text" placeholder="Ejemplo: C">
+
+      <label>Acordes principales</label>
+      <textarea id="newSongChords" placeholder="Ejemplo: C G Am F"></textarea>
+
+      <label>Letra con acordes</label>
+      <textarea id="newSongLyrics" placeholder="[C] Todo es posible
+[G] Si puedes creer
+[Am] Se mueve la mano de Dios
+[F] En su palabra viva"></textarea>
 
       <button class="planner-action" onclick="saveNewSong()">💾 Guardar canto</button>
     </div>

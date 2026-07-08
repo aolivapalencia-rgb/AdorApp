@@ -773,3 +773,68 @@ body.cult-active main {
     color: white;
     border-color: #444;
 }
+
+
+/* ===== Editor de repertorio v1.9.1 ===== */
+
+.main-action-btn,
+#addSongBtn {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 18px auto;
+    padding: 20px;
+    border: none;
+    border-radius: 18px;
+    background: #2e7d32;
+    color: white;
+    font-size: 24px;
+    font-weight: 800;
+    box-shadow: 0 6px 16px rgba(0,0,0,.22);
+}
+
+.editor-help {
+    background: #e3f2fd;
+    padding: 14px;
+    border-radius: 14px;
+    margin: 14px 0;
+    font-size: 16px;
+}
+
+.song-detail label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.song-detail input,
+.song-detail textarea {
+    width: 100%;
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #ccc;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+.song-detail textarea {
+    min-height: 150px;
+    font-family: monospace;
+}
+
+#newSongLyrics {
+    min-height: 320px;
+}
+
+.dark-mode .editor-help {
+    background: #263238;
+    color: white;
+}
+
+.dark-mode .song-detail input,
+.dark-mode .song-detail textarea {
+    background: #1e1e1e;
+    color: white;
+    border-color: #444;
+}
