@@ -6,7 +6,7 @@
   <title>AdorApp</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1565c0">
-  <link rel="stylesheet" href="css/styles.css?v=191" />
+  <link rel="stylesheet" href="css/styles.css?v=202" />
 </head>
 <body>
 <div id="splashScreen">
@@ -30,12 +30,15 @@
   <button id="favoritesFilter">❤️ Mostrar solo favoritos</button>
 <button id="plannerBtn">📋 Planificador</button><button id="addSongBtn" class="main-action-btn">🎵 Agregar canto</button>
 
-  <section id="songs"></section>
+  <button id="importImageBtn" class="main-action-btn image-import-btn">📷 Importar desde imagen</button>
+<input type="file" id="imageImportInput" accept="image/*" style="display:none">
+
+<section id="songs"></section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="data/songs.js?v=200"></script>
-<script src="js/app.js?v=201"></script>
+<script src="js/app.js?v=202"></script>
 <script src="js/planner.js?v=181"></script>
 </body>
 </html>
