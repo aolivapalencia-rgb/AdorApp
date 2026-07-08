@@ -389,3 +389,217 @@ header p{
     color:#90caf9;
 }
 
+
+
+/* ================= AdorApp v1.8 - Modo Culto PRO ================= */
+
+.cult-pro-active header,
+.cult-pro-active main > input,
+.cult-pro-active main > select,
+.cult-pro-active #favoritesFilter,
+.cult-pro-active #plannerBtn{
+    display:none !important;
+}
+
+.cult-pro-screen{
+    min-height:100vh;
+    background:#0b1220;
+    color:white;
+    padding:14px 14px 92px 14px;
+    box-sizing:border-box;
+}
+
+.cult-topbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    border-radius:18px;
+    background:rgba(21,101,192,.95);
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+}
+
+.cult-topbar button{
+    width:44px;
+    height:44px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.18);
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.cult-topbar div{
+    flex:1;
+    text-align:center;
+}
+
+.cult-topbar strong{
+    display:block;
+    font-size:18px;
+}
+
+.cult-topbar span{
+    display:block;
+    opacity:.9;
+    font-size:14px;
+}
+
+.cult-song-body{
+    max-width:820px;
+    margin:22px auto 0 auto;
+}
+
+.cult-song-body h1{
+    font-size:34px;
+    line-height:1.1;
+    margin:12px 0 4px;
+    text-align:center;
+}
+
+.cult-artist{
+    text-align:center;
+    opacity:.78;
+    margin:0 0 16px;
+}
+
+.cult-tone-control{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:18px;
+    margin:18px auto;
+}
+
+.cult-tone-control button{
+    width:54px;
+    height:54px;
+    border:none;
+    border-radius:50%;
+    background:#1565c0;
+    color:white;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.cult-tone-control span{
+    min-width:78px;
+    text-align:center;
+    font-size:32px;
+    font-weight:800;
+    padding:10px 16px;
+    border-radius:18px;
+    background:rgba(255,255,255,.12);
+}
+
+.cult-chords{
+    background:rgba(255,255,255,.08);
+    border-radius:14px;
+    padding:12px;
+    line-height:1.5;
+}
+
+.cult-lyrics{
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    line-height:1.55;
+    color:white;
+    font-family:Arial, sans-serif;
+    background:transparent;
+    padding:6px 0;
+}
+
+.cult-bottom-bar{
+    position:fixed;
+    left:10px;
+    right:10px;
+    bottom:12px;
+    z-index:30;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    padding:10px;
+    border-radius:22px;
+    background:rgba(15,23,42,.96);
+    box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+
+.cult-bottom-bar button{
+    flex:1;
+    min-height:48px;
+    border:none;
+    border-radius:16px;
+    background:#1565c0;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.cult-quick-list{
+    position:fixed;
+    left:14px;
+    right:14px;
+    top:86px;
+    z-index:40;
+    max-height:65vh;
+    overflow:auto;
+    padding:16px;
+    border-radius:20px;
+    background:#111827;
+    box-shadow:0 12px 30px rgba(0,0,0,.55);
+}
+
+.cult-quick-list.hidden{
+    display:none;
+}
+
+.cult-quick-list h3{
+    margin-top:0;
+    text-align:center;
+}
+
+.cult-list-item{
+    padding:14px;
+    margin:8px 0;
+    border-radius:14px;
+    background:rgba(255,255,255,.08);
+    font-weight:bold;
+}
+
+.cult-list-item span{
+    float:right;
+    opacity:.85;
+}
+
+.cult-list-item.active{
+    background:#1565c0;
+}
+
+.tone-pill{
+    display:inline-block;
+    margin:8px 0;
+    padding:8px 12px;
+    border-radius:999px;
+    background:#e3f2fd;
+    color:#0d47a1;
+    font-weight:bold;
+}
+
+.dark-mode .tone-pill{
+    background:#263238;
+    color:#90caf9;
+}
+
+.plan-row-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:8px;
+}

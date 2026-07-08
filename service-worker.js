@@ -1,11 +1,12 @@
-const CACHE_NAME = "adorapp-v16";
+const CACHE_NAME = "adorapp-v18";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./css/styles.css?v=100",
+  "./css/styles.css?v=180",
   "./data/songs.js",
-  "./js/app.js?v=100",
+  "./js/app.js?v=180",
+  "./js/planner.js?v=180",
   "./manifest.json"
 ];
 

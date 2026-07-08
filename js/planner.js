@@ -1,24 +1,37 @@
 let plans = JSON.parse(localStorage.getItem("plans") || "[]");
 let currentPlanId = null;
 let currentCultSongIndex = 0;
+let cultLyricSize = Number(localStorage.getItem("cultLyricSize") || 24);
+let wakeLock = null;
+let touchStartX = 0;
+let touchStartY = 0;
 
 const plannerBtn = document.getElementById("plannerBtn");
 const NOTES = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
 
+function savePlans() {
+    localStorage.setItem("plans", JSON.stringify(plans));
+}
+
 function normalizePlanSongs(plan) {
     plan.songs = (plan.songs || []).map(item => {
-        if (typeof item === "object") return item;
-        const song = songs.find(s => String(s.id) === String(item));
-        return { id: item, tone: song ? song.tone : "C" };
+        if (typeof item === "object" && item !== null) {
+            return {
+                id: item.id,
+                tone: item.tone || getSongTone(item.id)
+            };
+        }
+        return { id: item, tone: getSongTone(item) };
     });
+}
+
+function getSongTone(songId) {
+    const song = songs.find(s => String(s.id) === String(songId));
+    return song ? song.tone : "C";
 }
 
 plans.forEach(normalizePlanSongs);
 savePlans();
-
-function savePlans() {
-    localStorage.setItem("plans", JSON.stringify(plans));
-}
 
 function transposeChord(chord, steps) {
     const match = chord.match(/^([A-G][b#]?)(.*)$/);
@@ -27,14 +40,16 @@ function transposeChord(chord, steps) {
     const note = match[1];
     const rest = match[2];
     const index = NOTES.indexOf(note);
-
     if (index === -1) return chord;
 
     return NOTES[(index + steps + NOTES.length) % NOTES.length] + rest;
 }
 
 function getToneSteps(fromTone, toTone) {
-    return NOTES.indexOf(toTone) - NOTES.indexOf(fromTone);
+    const from = NOTES.indexOf(fromTone);
+    const to = NOTES.indexOf(toTone);
+    if (from === -1 || to === -1) return 0;
+    return to - from;
 }
 
 function getTransposedChordsForPlan(song, targetTone) {
@@ -43,6 +58,9 @@ function getTransposedChordsForPlan(song, targetTone) {
 }
 
 function openPlanner() {
+    releaseWakeLock();
+    document.body.classList.remove("cult-pro-active");
+
     document.getElementById("songs").innerHTML = `
         <div class="song-detail">
             <button class="back-btn" onclick="location.reload()">← Volver</button>
@@ -106,6 +124,9 @@ function renderPlansList() {
 }
 
 function openPlan(planId) {
+    releaseWakeLock();
+    document.body.classList.remove("cult-pro-active");
+
     currentPlanId = planId;
     const plan = plans.find(p => String(p.id) === String(planId));
     if (!plan) return;
@@ -147,16 +168,28 @@ function renderPlanSongs(plan) {
             <div class="plan-song">
                 <h3 onclick="openSong(${song.id})">🎵 ${index + 1}. ${song.title}</h3>
                 <p>${song.artist || "Autor desconocido"}</p>
-                <p><strong>Tono del culto:</strong> ${item.tone}</p>
+                <div class="tone-pill">Tono del culto: <strong>${item.tone}</strong></div>
 
-                <button onclick="changePlanSongTone(${plan.id}, ${index}, -1)">− Tono</button>
-                <button onclick="changePlanSongTone(${plan.id}, ${index}, 1)">+ Tono</button>
-                <button onclick="moveSongUp(${plan.id}, ${index})">⬆️</button>
-                <button onclick="moveSongDown(${plan.id}, ${index})">⬇️</button>
-                <button onclick="removeSongFromPlan(${plan.id}, ${song.id})">🗑 Quitar</button>
+                <div class="plan-row-actions">
+                    <button onclick="changePlanSongTone(${plan.id}, ${index}, -1)">◀ ${previousNote(item.tone)}</button>
+                    <button onclick="changePlanSongTone(${plan.id}, ${index}, 1)">${nextNote(item.tone)} ▶</button>
+                    <button onclick="moveSongUp(${plan.id}, ${index})">⬆️</button>
+                    <button onclick="moveSongDown(${plan.id}, ${index})">⬇️</button>
+                    <button onclick="removeSongFromPlan(${plan.id}, ${song.id})">🗑 Quitar</button>
+                </div>
             </div>
         `;
     }).join("");
+}
+
+function previousNote(tone) {
+    const i = NOTES.indexOf(tone);
+    return NOTES[(i - 1 + NOTES.length) % NOTES.length] || tone;
+}
+
+function nextNote(tone) {
+    const i = NOTES.indexOf(tone);
+    return NOTES[(i + 1) % NOTES.length] || tone;
 }
 
 function changePlanSongTone(planId, index, direction) {
@@ -165,13 +198,24 @@ function changePlanSongTone(planId, index, direction) {
 
     const item = plan.songs[index];
     const currentIndex = NOTES.indexOf(item.tone);
-
     if (currentIndex === -1) return;
 
     item.tone = NOTES[(currentIndex + direction + NOTES.length) % NOTES.length];
-
     savePlans();
     openPlan(planId);
+}
+
+function changeCurrentCultTone(direction) {
+    const plan = plans.find(p => String(p.id) === String(currentPlanId));
+    if (!plan) return;
+
+    const item = plan.songs[currentCultSongIndex];
+    const currentIndex = NOTES.indexOf(item.tone);
+    if (currentIndex === -1) return;
+
+    item.tone = NOTES[(currentIndex + direction + NOTES.length) % NOTES.length];
+    savePlans();
+    showCultSong();
 }
 
 function moveSongUp(planId, index) {
@@ -269,28 +313,68 @@ function showCultSong() {
     if (!song) return;
 
     const transposedChords = getTransposedChordsForPlan(song, item.tone);
+    document.body.classList.add("cult-pro-active");
 
     document.getElementById("songs").innerHTML = `
-        <div class="song-detail cult-mode-screen">
-            <button class="back-btn" onclick="openPlan(${plan.id})">← Salir del culto</button>
-
-            <div class="cult-header">
-                <h2>${plan.name}</h2>
-                <p>${currentCultSongIndex + 1} de ${plan.songs.length}</p>
+        <div class="cult-pro-screen" id="cultProScreen">
+            <div class="cult-topbar">
+                <button onclick="openPlan(${plan.id})">✕</button>
+                <div>
+                    <strong>${plan.name}</strong>
+                    <span>${currentCultSongIndex + 1} / ${plan.songs.length}</span>
+                </div>
+                <button onclick="toggleCultList()">☰</button>
             </div>
 
-            <h2>${song.title}</h2>
-            <p><strong>Tono del culto:</strong> ${item.tone}</p>
-            <p><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
+            <div class="cult-song-body">
+                <h1>${song.title}</h1>
+                <p class="cult-artist">${song.artist || ""}</p>
 
-            <pre class="lyrics-text">${song.lyrics}</pre>
+                <div class="cult-tone-control">
+                    <button onclick="changeCurrentCultTone(-1)">◀</button>
+                    <span>${item.tone}</span>
+                    <button onclick="changeCurrentCultTone(1)">▶</button>
+                </div>
 
-            <div class="cult-nav">
-                <button class="planner-action" onclick="previousCultSong()">⬅️ Anterior</button>
-                <button class="planner-action" onclick="nextCultSong()">Siguiente ➡️</button>
+                <p class="cult-chords"><strong>Acordes:</strong> ${transposedChords.join(" ")}</p>
+                <pre class="lyrics-text cult-lyrics" style="font-size:${cultLyricSize}px">${song.lyrics}</pre>
+            </div>
+
+            <div class="cult-bottom-bar">
+                <button onclick="previousCultSong()">⬅️</button>
+                <button onclick="decreaseCultLyricSize()">A−</button>
+                <button onclick="toggleWakeLock()">🔒</button>
+                <button onclick="increaseCultLyricSize()">A+</button>
+                <button onclick="nextCultSong()">➡️</button>
+            </div>
+
+            <div id="cultQuickList" class="cult-quick-list hidden">
+                <h3>Lista del culto</h3>
+                ${renderCultQuickList(plan)}
             </div>
         </div>
     `;
+
+    setupCultGestures();
+}
+
+function renderCultQuickList(plan) {
+    return plan.songs.map((item, index) => {
+        const song = songs.find(s => String(s.id) === String(item.id));
+        if (!song) return "";
+        const active = index === currentCultSongIndex ? "active" : "";
+        return `<div class="cult-list-item ${active}" onclick="jumpToCultSong(${index})">${index + 1}. ${song.title} <span>${item.tone}</span></div>`;
+    }).join("");
+}
+
+function toggleCultList() {
+    const list = document.getElementById("cultQuickList");
+    if (list) list.classList.toggle("hidden");
+}
+
+function jumpToCultSong(index) {
+    currentCultSongIndex = index;
+    showCultSong();
 }
 
 function previousCultSong() {
@@ -312,6 +396,64 @@ function nextCultSong() {
     }
 }
 
+function increaseCultLyricSize() {
+    cultLyricSize = Math.min(42, cultLyricSize + 2);
+    localStorage.setItem("cultLyricSize", cultLyricSize);
+    showCultSong();
+}
+
+function decreaseCultLyricSize() {
+    cultLyricSize = Math.max(16, cultLyricSize - 2);
+    localStorage.setItem("cultLyricSize", cultLyricSize);
+    showCultSong();
+}
+
+async function toggleWakeLock() {
+    if (wakeLock) {
+        releaseWakeLock();
+        alert("Pantalla normal.");
+        return;
+    }
+
+    try {
+        if ("wakeLock" in navigator) {
+            wakeLock = await navigator.wakeLock.request("screen");
+            alert("Pantalla activa durante el culto.");
+        } else {
+            alert("Tu navegador no permite mantener la pantalla encendida.");
+        }
+    } catch (error) {
+        alert("No se pudo activar pantalla encendida.");
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+    }
+}
+
+function setupCultGestures() {
+    const screen = document.getElementById("cultProScreen");
+    if (!screen) return;
+
+    screen.addEventListener("touchstart", event => {
+        touchStartX = event.changedTouches[0].screenX;
+        touchStartY = event.changedTouches[0].screenY;
+    }, { passive: true });
+
+    screen.addEventListener("touchend", event => {
+        const dx = event.changedTouches[0].screenX - touchStartX;
+        const dy = event.changedTouches[0].screenY - touchStartY;
+
+        if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy)) {
+            if (dx < 0) nextCultSong();
+            else previousCultSong();
+        }
+    }, { passive: true });
+}
+
 function sharePlan(planId) {
     const plan = plans.find(p => String(p.id) === String(planId));
     if (!plan) return;
@@ -326,10 +468,7 @@ function sharePlan(planId) {
     });
 
     if (navigator.share) {
-        navigator.share({
-            title: plan.name,
-            text: text
-        });
+        navigator.share({ title: plan.name, text });
     } else {
         navigator.clipboard.writeText(text);
         alert("Culto copiado al portapapeles.");
@@ -339,12 +478,10 @@ function sharePlan(planId) {
 document.addEventListener("input", event => {
     if (event.target.id === "songSelectorSearch") {
         const term = event.target.value.toLowerCase();
-
         const filtered = songs.filter(song =>
             song.title.toLowerCase().includes(term) ||
             (song.artist || "").toLowerCase().includes(term)
         );
-
         renderSongSelector(filtered);
     }
 });
