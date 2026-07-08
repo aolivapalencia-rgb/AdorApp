@@ -725,3 +725,51 @@ body.cult-active main {
     background: rgba(255,255,255,.12);
 }
 
+
+
+/* ================= Editor de cantos ================= */
+
+#addSongBtn {
+    width: 100%;
+    margin: 18px 0;
+    padding: 20px;
+    border: none;
+    border-radius: 16px;
+    background: #2e7d32;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+
+.song-detail input,
+.song-detail textarea {
+    width: 100%;
+    margin: 10px 0;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+.song-detail textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: monospace;
+}
+
+#newSongLyrics {
+    min-height: 260px;
+}
+
+.dark-mode #addSongBtn {
+    background: #1b5e20;
+}
+
+.dark-mode .song-detail input,
+.dark-mode .song-detail textarea {
+    background: #1e1e1e;
+    color: white;
+    border-color: #444;
+}

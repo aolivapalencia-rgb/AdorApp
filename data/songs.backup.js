@@ -1,4 +1,4 @@
-const defaultSongs = [
+const songs = [
   {
     id: 1,
     title: "Todo es posible",
@@ -35,12 +35,3 @@ Purifícame y lávame
 Renuévame, restáurame Señor`
   }
 ];
-
-
-let customSongs = JSON.parse(localStorage.getItem("customSongs") || "[]");
-let songs = [...defaultSongs, ...customSongs];
-
-function saveCustomSongs() {
-    localStorage.setItem("customSongs", JSON.stringify(customSongs));
-    songs = [...defaultSongs, ...customSongs];
-}
