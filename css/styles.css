@@ -882,3 +882,22 @@ body.cult-active main {
 .dark-mode .chord-line {
   color: #64b5f6;
 }
+
+/* ===== Editor amplio de cantos ===== */
+
+#newSongLyrics,
+#ocrSongLyrics {
+    min-height: 65vh !important;
+    height: 65vh !important;
+    font-size: 18px !important;
+    line-height: 1.45 !important;
+    font-family: monospace !important;
+    white-space: pre !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    resize: vertical !important;
+}
+
+.song-detail {
+    padding-bottom: 90px;
+}
