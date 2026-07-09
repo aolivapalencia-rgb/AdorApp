@@ -336,6 +336,7 @@ function openAddSongEditor() {
 [Am] Se mueve la mano de Dios
 [F] En su palabra viva"></textarea>
 
+      <button class="planner-action" onclick="formatCurrentSongText()">🧹 Limpiar texto</button>
       <button class="planner-action" onclick="saveNewSong()">💾 Guardar canto</button>
     </div>
   `;
@@ -720,4 +721,32 @@ function buildSongFromOCRWords(data) {
   }
 
   return result.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+
+/* ===== Corrector rápido para pegar cantos ===== */
+
+function quickFormatOCRText(text) {
+  return text
+    .replace(/Cc\b/g, "C")
+    .replace(/\biF\b/g, "F")
+    .replace(/II\s*0\s*</g, "")
+    .replace(/[|<>]/g, "")
+    .replace(/\s+$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function formatCurrentSongText() {
+  const area =
+    document.getElementById("newSongLyrics") ||
+    document.getElementById("ocrSongLyrics");
+
+  if (!area) {
+    alert("No encontré el cuadro de letra.");
+    return;
+  }
+
+  area.value = quickFormatOCRText(area.value);
+  alert("Texto limpiado. Revisa y guarda.");
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "adorapp-v205";
+const CACHE_NAME = "adorapp-v210";
 
 const FILES_TO_CACHE = [
   "./",
