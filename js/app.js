@@ -188,7 +188,7 @@ function renderSongs(list) {
       <p><strong>Categoría:</strong> ${song.category}</p>
       <p><strong>Tonalidad:</strong> ${song.tone}</p>
       <p><strong>Acordes:</strong> ${song.chords.join(" ")}</p>
-      <pre>${song.lyrics}</pre>
+      <pre>${renderChordLyrics(song.lyrics)}</pre>
     `;
 
     card.addEventListener("click", () => {
@@ -749,4 +749,46 @@ function formatCurrentSongText() {
 
   area.value = quickFormatOCRText(area.value);
   alert("Texto limpiado. Revisa y guarda.");
+}
+
+
+/* ===== Render profesional de letras con acordes ===== */
+
+function renderChordLyrics(rawLyrics) {
+  if (!rawLyrics) return "";
+
+  const lines = rawLyrics.split("\n");
+  let html = "";
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      html += "<br>";
+      return;
+    }
+
+    if (/^(VERSO|VERSO:|CORO|CORO:|PUENTE|PUENTE:|INTRO|INTRO:|FINAL|FINAL:)$/i.test(trimmed)) {
+      html += `<div class="section-line">${trimmed}</div>`;
+      return;
+    }
+
+    if (/^\[[^\]]+\]$/.test(trimmed)) {
+      html += `<div class="chord-line">${trimmed.replace("[", "").replace("]", "")}</div>`;
+      return;
+    }
+
+    if (/^\[[^\]]+\]/.test(trimmed)) {
+      const match = trimmed.match(/^\[([^\]]+)\]\s*(.*)$/);
+      if (match) {
+        html += `<div class="chord-line">${match[1]}</div>`;
+        html += `<div class="lyric-line">${match[2]}</div>`;
+      }
+      return;
+    }
+
+    html += `<div class="lyric-line">${trimmed}</div>`;
+  });
+
+  return html;
 }

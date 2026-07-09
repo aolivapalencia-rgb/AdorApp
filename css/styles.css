@@ -854,3 +854,31 @@ body.cult-active main {
 .dark-mode #ocrProgress {
     color: #90caf9;
 }
+
+/* ===== Vista profesional de acordes ===== */
+
+.chord-line {
+  color: #1565c0;
+  font-weight: 900;
+  font-family: monospace;
+  font-size: 20px;
+  margin-top: 18px;
+}
+
+.lyric-line {
+  font-family: monospace;
+  font-size: 20px;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+
+.section-line {
+  margin-top: 24px;
+  font-weight: 900;
+  font-size: 22px;
+  text-transform: uppercase;
+}
+
+.dark-mode .chord-line {
+  color: #64b5f6;
+}
