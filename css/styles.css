@@ -1077,3 +1077,41 @@ textarea.pro-code-area {
   resize:none !important;
   outline:none !important;
 }
+
+/* ===== Vista ChordPro oficial ===== */
+
+.chordpro-line {
+  font-family: "Courier New", monospace;
+  margin: 10px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.chordpro-chords {
+  color: #1565c0;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1.1;
+  white-space: pre;
+}
+
+.chordpro-lyrics {
+  font-family: "Courier New", monospace;
+  font-size: 18px;
+  line-height: 1.35;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.song-section-title {
+  margin-top: 22px;
+  margin-bottom: 10px;
+  font-weight: 900;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.dark-mode .chordpro-chords,
+body.pro-song-editor-mode .chordpro-chords {
+  color: #64b5f6;
+}

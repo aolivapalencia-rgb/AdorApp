@@ -188,7 +188,7 @@ function renderSongs(list) {
       <p><strong>Categoría:</strong> ${song.category}</p>
       <p><strong>Tonalidad:</strong> ${song.tone}</p>
       <p><strong>Acordes:</strong> ${song.chords.join(" ")}</p>
-      <pre>${renderChordLyrics(song.lyrics)}</pre>
+      <pre>${renderChordPro(song.lyrics)}</pre>
     `;
 
     card.addEventListener("click", () => {
@@ -336,7 +336,7 @@ function openAddSongEditor() {
 [Am] Se mueve la mano de Dios
 [F] En su palabra viva"></textarea>
 
-      <button class="planner-action" onclick="formatCurrentSongText()">🧹 Limpiar texto</button>
+      <button class="planner-action" onclick="convertCurrentTextToChordPro()">🎼 Formato ChordPro</button>
       <button class="planner-action" onclick="saveNewSong()">💾 Guardar canto</button>
     </div>
   `;
@@ -808,7 +808,7 @@ function enhanceLyricsEditorPro() {
   const toolbar = document.createElement("div");
   toolbar.className = "pro-editor-toolbar";
   toolbar.innerHTML = `
-    <button type="button" onclick="formatCurrentSongText()">✨ Limpiar</button>
+    <button type="button" onclick="convertCurrentTextToChordPro()">🎼 ChordPro</button>
     <button type="button" onclick="insertSongExample()">📄 Ejemplo</button>
     <button type="button" onclick="toggleEditorFullscreen()">⛶ Pantalla</button>
   `;
@@ -928,7 +928,7 @@ function activarEditorReal() {
   const bar = document.createElement("div");
   bar.className = "pro-editor-bar";
   bar.innerHTML = `
-    <button type="button" onclick="formatCurrentSongText()">✨ Limpiar</button>
+    <button type="button" onclick="convertCurrentTextToChordPro()">🎼 ChordPro</button>
     <button type="button" onclick="insertSongExample()">📄 Ejemplo</button>
     <button type="button" onclick="document.querySelector('.pro-editor-box').classList.toggle('fullscreen')">⛶</button>
   `;
@@ -960,3 +960,77 @@ function activarEditorReal() {
 const editorObserver = new MutationObserver(() => activarEditorReal());
 editorObserver.observe(document.body, { childList:true, subtree:true });
 setInterval(activarEditorReal, 500);
+
+
+/* ===== ChordPro oficial para AdorApp ===== */
+
+function escapeHTML(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderChordPro(raw) {
+  if (!raw) return "";
+
+  return raw.split("\n").map(line => {
+    const clean = line.trimEnd();
+
+    if (!clean.trim()) return "<br>";
+
+    if (/^(VERSO|VERSO:|CORO|CORO:|PUENTE|PUENTE:|INTRO|INTRO:|FINAL|FINAL:|INSTRUMENTAL|INSTRUMENTAL:)$/i.test(clean.trim())) {
+      return `<div class="song-section-title">${escapeHTML(clean.trim())}</div>`;
+    }
+
+    let chordLine = "";
+    let lyricLine = "";
+    let lyricPos = 0;
+
+    const regex = /\[([^\]]+)\]/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(clean)) !== null) {
+      const before = clean.slice(lastIndex, match.index);
+      lyricLine += before;
+      lyricPos += before.length;
+
+      const chord = match[1];
+      while (chordLine.length < lyricPos) chordLine += " ";
+      chordLine += chord;
+
+      lastIndex = regex.lastIndex;
+    }
+
+    lyricLine += clean.slice(lastIndex);
+
+    if (chordLine.trim()) {
+      return `
+        <div class="chordpro-line">
+          <div class="chordpro-chords">${escapeHTML(chordLine)}</div>
+          <div class="chordpro-lyrics">${escapeHTML(lyricLine)}</div>
+        </div>
+      `;
+    }
+
+    return `<div class="chordpro-lyrics">${escapeHTML(clean)}</div>`;
+  }).join("");
+}
+
+function normalizeToChordPro(text) {
+  return String(text || "")
+    .replace(/\r/g, "")
+    .replace(/^\s*([A-G](?:#|b)?(?:m|maj7|m7|7|sus|sus2|sus4|dim|aug|add9)?(?:\/[A-G](?:#|b)?)?)\s*$/gm, "[$1]")
+    .replace(/\[([^\]]+)\]\s+/g, "[$1]")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function convertCurrentTextToChordPro() {
+  const area = document.getElementById("newSongLyrics") || document.getElementById("ocrSongLyrics");
+  if (!area) return alert("No encontré el editor.");
+  area.value = normalizeToChordPro(area.value);
+  area.dispatchEvent(new Event("input"));
+  alert("Formato ChordPro aplicado.");
+}
