@@ -423,7 +423,7 @@ async function processImportedImage(file) {
       }
     });
 
-    const text = result.data.text.trim();
+    const text = buildSongFromOCRWords(result.data).trim();
 
     openOCRReviewEditor(text);
 
@@ -623,4 +623,101 @@ function smartCleanCurrentOCRText() {
   if (toneBox && chords[0]) toneBox.value = chords[0];
 
   alert("Letra ordenada con Importador Inteligente v2.");
+}
+
+
+/* ===== Importador Inteligente v3 con posición visual ===== */
+
+function buildSongFromOCRWords(data) {
+  if (!data || !data.words) {
+    return data.text || "";
+  }
+
+  const words = data.words
+    .filter(w => w.text && w.text.trim())
+    .map(w => ({
+      text: w.text.trim(),
+      x: w.bbox.x0,
+      y: w.bbox.y0,
+      h: w.bbox.y1 - w.bbox.y0
+    }))
+    .sort((a, b) => a.y - b.y || a.x - b.x);
+
+  const lines = [];
+
+  words.forEach(word => {
+    let line = lines.find(l => Math.abs(l.y - word.y) < 14);
+    if (!line) {
+      line = { y: word.y, words: [] };
+      lines.push(line);
+    }
+    line.words.push(word);
+  });
+
+  lines.sort((a, b) => a.y - b.y);
+  lines.forEach(l => l.words.sort((a, b) => a.x - b.x));
+
+  const chordRegex = /^[A-G](#|b)?(m|maj7|m7|7|sus|sus2|sus4|dim|aug|add9)?(\/[A-G](#|b)?)?$/;
+
+  function lineText(line) {
+    return line.words.map(w => w.text).join(" ");
+  }
+
+  function isChordOnlyLine(line) {
+    return line.words.length > 0 && line.words.every(w => chordRegex.test(w.text));
+  }
+
+  function placeChords(chordLine, lyricLine) {
+    const lyricWords = lyricLine.words;
+    let output = "";
+
+    lyricWords.forEach((word, index) => {
+      const chordsHere = chordLine.words
+        .filter(chord => {
+          const next = lyricWords[index + 1];
+          if (!next) return chord.x >= word.x - 18;
+          return chord.x >= word.x - 18 && chord.x < next.x - 18;
+        })
+        .map(c => c.text);
+
+      if (chordsHere.length) {
+        output += "[" + chordsHere.join(" ") + "] ";
+      }
+
+      output += word.text + " ";
+    });
+
+    return output.trim();
+  }
+
+  const result = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const current = lines[i];
+    const next = lines[i + 1];
+
+    let currentText = lineText(current)
+      .replace(/lacu(erda|erda\.net|da\.net)/gi, "")
+      .replace(/Follow.*$/gi, "")
+      .replace(/on Bandsintown/gi, "")
+      .trim();
+
+    if (!currentText) continue;
+
+    if (isChordOnlyLine(current) && next && !isChordOnlyLine(next)) {
+      result.push(placeChords(current, next));
+      i++;
+      continue;
+    }
+
+    if (/^(verso|estrofa|coro|puente|intro|instrumental|solo|interlude|final)/i.test(currentText)) {
+      result.push("");
+      result.push(currentText.toUpperCase());
+      continue;
+    }
+
+    result.push(currentText);
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
