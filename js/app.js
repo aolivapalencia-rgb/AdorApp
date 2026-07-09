@@ -1010,3 +1010,148 @@ function renderExactChart(raw) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")}</pre>`;
 }
+
+/* ===== Modo llenar fichas manualmente ===== */
+
+function getAdorSongs() {
+  return JSON.parse(localStorage.getItem("adorapp_custom_songs") || "null") || songs;
+}
+
+function saveAdorSongs(list) {
+  localStorage.setItem("adorapp_custom_songs", JSON.stringify(list));
+  window.songs = list;
+}
+
+function escapeAdorHTML(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderExactChart(raw) {
+  return `<pre class="exact-chart">${escapeAdorHTML(raw || "")}</pre>`;
+}
+
+/* ocultar botones que ya no se usarán */
+setInterval(() => {
+  ["addSongBtn", "importImageBtn", "imageImportInput", "importImageInput"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+}, 500);
+
+/* editor directo de ficha existente */
+function openEditSongSheet(songId) {
+  const list = getAdorSongs();
+  const song = list.find(s => String(s.id) === String(songId));
+  if (!song) return alert("No encontré este canto.");
+
+  const main = document.querySelector("main") || document.body;
+
+  main.innerHTML = `
+    <section class="edit-sheet">
+      <button onclick="renderSongs()" class="back-btn">← Volver</button>
+
+      <h1>Editar ficha</h1>
+
+      <label>Título</label>
+      <input id="editTitle" value="${escapeAdorHTML(song.title || "")}">
+
+      <label>Autor</label>
+      <input id="editAuthor" value="${escapeAdorHTML(song.author || "")}">
+
+      <label>Categoría</label>
+      <input id="editCategory" value="${escapeAdorHTML(song.category || "")}">
+
+      <label>Tonalidad</label>
+      <input id="editKey" value="${escapeAdorHTML(song.key || song.originalKey || "")}">
+
+      <label>Letra con acordes</label>
+      <textarea id="editLyrics">${escapeAdorHTML(song.lyrics || "")}</textarea>
+
+      <div class="edit-actions">
+        <button class="cancel-edit-btn" onclick="renderSongs()">Cancelar</button>
+        <button class="save-edit-btn" onclick="saveEditedSong('${song.id}')">Guardar</button>
+      </div>
+    </section>
+  `;
+}
+
+function saveEditedSong(songId) {
+  const list = getAdorSongs();
+  const index = list.findIndex(s => String(s.id) === String(songId));
+  if (index === -1) return alert("No encontré este canto.");
+
+  list[index].title = document.getElementById("editTitle").value.trim();
+  list[index].author = document.getElementById("editAuthor").value.trim();
+  list[index].category = document.getElementById("editCategory").value.trim();
+  list[index].key = document.getElementById("editKey").value.trim();
+  list[index].originalKey = document.getElementById("editKey").value.trim();
+  list[index].chords = "";
+  list[index].lyrics = document.getElementById("editLyrics").value;
+
+  saveAdorSongs(list);
+  alert("Ficha guardada.");
+  renderSongs();
+}
+
+/* reemplazar vista de detalle para agregar editar */
+const oldShowSongDetailManual = typeof showSongDetail === "function" ? showSongDetail : null;
+
+if (oldShowSongDetailManual) {
+  showSongDetail = function(songId) {
+    oldShowSongDetailManual(songId);
+
+    setTimeout(() => {
+      const container = document.querySelector(".song-detail") || document.querySelector("main");
+      if (!container || document.getElementById("editExistingSongBtn")) return;
+
+      const btn = document.createElement("button");
+      btn.id = "editExistingSongBtn";
+      btn.className = "planner-action";
+      btn.textContent = "✏️ Editar ficha";
+      btn.onclick = () => openEditSongSheet(songId);
+
+      const back = container.querySelector("button");
+      if (back && back.parentNode) {
+        back.parentNode.insertBefore(btn, back.nextSibling);
+      } else {
+        container.prepend(btn);
+      }
+
+      container.innerHTML = container.innerHTML
+        .replace(/<p><strong>Acordes:<\/strong>.*?<\/p>/s, "")
+        .replace(/<strong>Acordes:<\/strong>.*?<br>/s, "");
+    }, 100);
+  };
+}
+
+/* si existe render viejo, mantener canciones desde localStorage */
+const oldRenderSongsManual = typeof renderSongs === "function" ? renderSongs : null;
+
+if (oldRenderSongsManual) {
+  renderSongs = function() {
+    window.songs = getAdorSongs();
+    oldRenderSongsManual();
+
+    setTimeout(() => {
+      document.querySelectorAll(".song-card").forEach(card => {
+        card.classList.add("small-song-card");
+      });
+    }, 100);
+  };
+}
+
+/* usar vista exacta si existe render ChordPro viejo */
+if (typeof renderChordPro === "function") {
+  renderChordPro = function(raw) {
+    return renderExactChart(raw);
+  };
+}
+
+if (typeof renderChordLyrics === "function") {
+  renderChordLyrics = function(raw) {
+    return renderExactChart(raw);
+  };
+}
