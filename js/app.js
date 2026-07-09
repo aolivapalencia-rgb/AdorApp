@@ -913,3 +913,50 @@ if (originalOpenOCRReviewEditorPro) {
     setTimeout(enhanceLyricsEditorPro, 50);
   }
 }
+
+/* ===== Activar editor REAL estilo código ===== */
+function activarEditorReal() {
+  const area = document.getElementById("newSongLyrics") || document.getElementById("ocrSongLyrics");
+  if (!area || area.dataset.realEditor === "1") return;
+
+  document.body.classList.add("pro-song-editor-mode");
+  area.dataset.realEditor = "1";
+
+  const box = document.createElement("div");
+  box.className = "pro-editor-box";
+
+  const bar = document.createElement("div");
+  bar.className = "pro-editor-bar";
+  bar.innerHTML = `
+    <button type="button" onclick="formatCurrentSongText()">✨ Limpiar</button>
+    <button type="button" onclick="insertSongExample()">📄 Ejemplo</button>
+    <button type="button" onclick="document.querySelector('.pro-editor-box').classList.toggle('fullscreen')">⛶</button>
+  `;
+
+  const content = document.createElement("div");
+  content.className = "pro-editor-content";
+
+  const nums = document.createElement("div");
+  nums.className = "pro-line-numbers";
+
+  area.parentNode.insertBefore(box, area);
+  box.appendChild(bar);
+  box.appendChild(content);
+  content.appendChild(nums);
+  content.appendChild(area);
+
+  area.classList.add("pro-code-area");
+
+  function updateNums() {
+    const total = area.value.split("\n").length || 1;
+    nums.innerHTML = Array.from({length: total}, (_, i) => i + 1).join("<br>");
+  }
+
+  area.addEventListener("input", updateNums);
+  area.addEventListener("scroll", () => nums.scrollTop = area.scrollTop);
+  updateNums();
+}
+
+const editorObserver = new MutationObserver(() => activarEditorReal());
+editorObserver.observe(document.body, { childList:true, subtree:true });
+setInterval(activarEditorReal, 500);

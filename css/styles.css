@@ -995,3 +995,85 @@ body.cult-active main {
 .dark-mode .pro-editor-shell {
   background: #0f1720;
 }
+
+/* ===== Editor REAL estilo código ===== */
+body.pro-song-editor-mode {
+  background:#0f1720 !important;
+  color:#f8fafc !important;
+}
+
+body.pro-song-editor-mode .song-detail {
+  background:#0f1720 !important;
+  color:#f8fafc !important;
+  box-shadow:none !important;
+}
+
+body.pro-song-editor-mode input,
+body.pro-song-editor-mode textarea,
+body.pro-song-editor-mode select {
+  background:#111827 !important;
+  color:#f8fafc !important;
+  border:1px solid #334155 !important;
+}
+
+.pro-editor-box {
+  border:2px solid #1976d2;
+  border-radius:10px;
+  overflow:hidden;
+  background:#0b1220;
+}
+
+.pro-editor-bar {
+  display:flex;
+  gap:8px;
+  padding:8px;
+  background:#111827;
+}
+
+.pro-editor-bar button {
+  flex:1;
+  padding:10px;
+  border:0;
+  border-radius:8px;
+  background:#1f2937;
+  color:white;
+  font-weight:800;
+}
+
+.pro-editor-content {
+  display:flex;
+  height:65vh;
+  min-height:520px;
+  overflow:hidden;
+}
+
+.pro-line-numbers {
+  width:42px;
+  padding:12px 6px;
+  background:#111827;
+  color:#94a3b8;
+  text-align:right;
+  font-family:monospace;
+  font-size:18px;
+  line-height:1.45;
+  overflow:hidden;
+}
+
+textarea.pro-code-area {
+  flex:1;
+  height:100% !important;
+  min-height:100% !important;
+  padding:12px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:#0b1220 !important;
+  color:#f8fafc !important;
+  font-family:monospace !important;
+  font-size:18px !important;
+  line-height:1.45 !important;
+  white-space:pre !important;
+  overflow:auto !important;
+  resize:none !important;
+  outline:none !important;
+}
