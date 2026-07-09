@@ -471,7 +471,7 @@ function openOCRReviewEditor(rawText) {
       <label>Letra con acordes</label>
       <textarea id="ocrSongLyrics">${rawText}</textarea>
 
-      <button class="planner-action" onclick="cleanCurrentOCRText()">🧹 Ordenar letra</button>
+      <button class="planner-action" onclick="smartCleanCurrentOCRText()">🧠 Ordenar inteligente</button>
       <button class="planner-action" onclick="saveOCRSong()">💾 Guardar canto</button>
     </div>
   `;
@@ -561,4 +561,66 @@ function cleanCurrentOCRText() {
 
   const chords = detectChordsFromText(area.value);
   if (chordBox) chordBox.value = chords.join(" ");
+}
+
+
+/* ===== Importador Inteligente v2 ===== */
+
+function smartIsChordLine(line) {
+  const clean = line.trim();
+  if (!clean) return false;
+
+  const chord = String.raw`[A-G](?:#|b)?(?:m|maj7|m7|7|sus|sus2|sus4|dim|aug|add9)?(?:\/[A-G](?:#|b)?)?`;
+  const re = new RegExp(`^(${chord}\\s*)+$`);
+  return re.test(clean);
+}
+
+function smartCleanOCRLyrics(raw) {
+  let lines = raw
+    .replace(/lacu(erda|erda\.net|da\.net)/gi, "")
+    .replace(/Follow.*$/gim, "")
+    .replace(/on Bandsintown/gi, "")
+    .replace(/ESPERO QUE LES GUSTE MUCHO/gi, "")
+    .replace(/Desconocido/gi, "")
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l);
+
+  let output = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    if (/^(verso|estrofa|coro|puente|intro|instrumental|solo|interlude|final)/i.test(line)) {
+      output.push("");
+      output.push(line.toUpperCase());
+      continue;
+    }
+
+    if (smartIsChordLine(line) && lines[i + 1]) {
+      output.push(`[${line.replace(/\s+/g, " ")}] ${lines[i + 1]}`);
+      i++;
+      continue;
+    }
+
+    output.push(line);
+  }
+
+  return output.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function smartCleanCurrentOCRText() {
+  const area = document.getElementById("ocrSongLyrics");
+  const chordBox = document.getElementById("ocrSongChords");
+  const toneBox = document.getElementById("ocrSongTone");
+
+  if (!area) return;
+
+  area.value = smartCleanOCRLyrics(area.value);
+
+  const chords = detectChordsFromText(area.value);
+  if (chordBox) chordBox.value = chords.join(" ");
+  if (toneBox && chords[0]) toneBox.value = chords[0];
+
+  alert("Letra ordenada con Importador Inteligente v2.");
 }
