@@ -901,3 +901,97 @@ body.cult-active main {
 .song-detail {
     padding-bottom: 90px;
 }
+
+/* ===== Editor profesional de cantos v2.2 ===== */
+
+.song-detail {
+  max-width: 100%;
+}
+
+.pro-editor-shell {
+  width: 100%;
+  border: 2px solid #1565c0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0f1720;
+  margin-top: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+
+.pro-editor-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: #1f2937;
+  border-bottom: 1px solid #334155;
+}
+
+.pro-editor-toolbar button {
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  background: #263647;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 12px 8px;
+}
+
+.pro-editor-body {
+  display: flex;
+  height: 70vh;
+  min-height: 520px;
+  background: #0f1720;
+  overflow: hidden;
+}
+
+.line-numbers {
+  width: 42px;
+  flex: 0 0 42px;
+  padding: 16px 6px;
+  background: #111827;
+  color: #94a3b8;
+  text-align: right;
+  font-family: monospace;
+  font-size: 17px;
+  line-height: 1.45;
+  overflow: hidden;
+  user-select: none;
+}
+
+.pro-lyrics-editor,
+#newSongLyrics.pro-lyrics-editor,
+#ocrSongLyrics.pro-lyrics-editor {
+  flex: 1;
+  height: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  padding: 16px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #0f1720 !important;
+  color: #f8fafc !important;
+  font-family: monospace !important;
+  font-size: 19px !important;
+  line-height: 1.45 !important;
+  white-space: pre !important;
+  overflow: auto !important;
+  resize: none !important;
+  outline: none !important;
+}
+
+.editor-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.editor-fullscreen .pro-editor-body {
+  height: calc(100vh - 58px);
+}
+
+.dark-mode .pro-editor-shell {
+  background: #0f1720;
+}

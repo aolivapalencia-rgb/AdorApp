@@ -792,3 +792,124 @@ function renderChordLyrics(rawLyrics) {
 
   return html;
 }
+
+
+/* ===== Editor profesional de cantos v2.2 ===== */
+
+function enhanceLyricsEditorPro() {
+  const area = document.getElementById("newSongLyrics") || document.getElementById("ocrSongLyrics");
+  if (!area || area.dataset.proEditor === "1") return;
+
+  area.dataset.proEditor = "1";
+
+  const shell = document.createElement("div");
+  shell.className = "pro-editor-shell";
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "pro-editor-toolbar";
+  toolbar.innerHTML = `
+    <button type="button" onclick="formatCurrentSongText()">✨ Limpiar</button>
+    <button type="button" onclick="insertSongExample()">📄 Ejemplo</button>
+    <button type="button" onclick="toggleEditorFullscreen()">⛶ Pantalla</button>
+  `;
+
+  const body = document.createElement("div");
+  body.className = "pro-editor-body";
+
+  const nums = document.createElement("div");
+  nums.className = "line-numbers";
+
+  area.parentNode.insertBefore(shell, area);
+  shell.appendChild(toolbar);
+  shell.appendChild(body);
+  body.appendChild(nums);
+  body.appendChild(area);
+
+  area.classList.add("pro-lyrics-editor");
+
+  function updateLines() {
+    const count = Math.max(area.value.split("\n").length, 1);
+    nums.innerHTML = Array.from({ length: count }, (_, i) => i + 1).join("<br>");
+  }
+
+  area.addEventListener("input", () => {
+    updateLines();
+    updateDetectedChordsFromEditor();
+  });
+
+  area.addEventListener("scroll", () => {
+    nums.scrollTop = area.scrollTop;
+  });
+
+  updateLines();
+  updateDetectedChordsFromEditor();
+}
+
+function updateDetectedChordsFromEditor() {
+  const area = document.getElementById("newSongLyrics") || document.getElementById("ocrSongLyrics");
+  const chordBox = document.getElementById("newSongChords") || document.getElementById("ocrSongChords");
+  if (!area || !chordBox) return;
+
+  const chords = detectChordsFromText(area.value);
+  chordBox.value = chords.join(" ");
+}
+
+function insertSongExample() {
+  const area = document.getElementById("newSongLyrics") || document.getElementById("ocrSongLyrics");
+  if (!area) return;
+
+  area.value = `VERSO:
+
+[E]
+Abre mis ojos oh Cristo
+
+[B/D#]
+Abre mis ojos Te pido
+
+[E/A]
+Yo quiero verte
+
+[E]
+Yo quiero verte
+
+
+CORO:
+
+[B]        [C#m]
+Y contemplar Tu Majestad
+
+[A]        [Bsus]
+Y el resplandor de Tu Gloria
+
+[B]        [C#m]
+Derrama Tu amor y poder
+
+[A]
+Cuando cantamos:
+
+[Bsus]        [B]
+Santo, Santo`;
+  area.dispatchEvent(new Event("input"));
+}
+
+function toggleEditorFullscreen() {
+  const shell = document.querySelector(".pro-editor-shell");
+  if (!shell) return;
+  shell.classList.toggle("editor-fullscreen");
+}
+
+const originalOpenAddSongEditorPro = typeof openAddSongEditor === "function" ? openAddSongEditor : null;
+if (originalOpenAddSongEditorPro) {
+  openAddSongEditor = function() {
+    originalOpenAddSongEditorPro();
+    setTimeout(enhanceLyricsEditorPro, 50);
+  }
+}
+
+const originalOpenOCRReviewEditorPro = typeof openOCRReviewEditor === "function" ? openOCRReviewEditor : null;
+if (originalOpenOCRReviewEditorPro) {
+  openOCRReviewEditor = function(rawText) {
+    originalOpenOCRReviewEditorPro(rawText);
+    setTimeout(enhanceLyricsEditorPro, 50);
+  }
+}
