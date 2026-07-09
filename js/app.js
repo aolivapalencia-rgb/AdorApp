@@ -188,7 +188,7 @@ function renderSongs(list) {
       <p><strong>Categoría:</strong> ${song.category}</p>
       <p><strong>Tonalidad:</strong> ${song.tone}</p>
       <p><strong>Acordes:</strong> ${song.chords.join(" ")}</p>
-      <pre>${renderChordPro(song.lyrics)}</pre>
+      <pre>${renderExactChart(song.lyrics)}</pre>
     `;
 
     card.addEventListener("click", () => {
@@ -999,4 +999,14 @@ function convertCurrentTextToChordPro() {
   area.value = normalizeToChordPro(area.value);
   area.dispatchEvent(new Event("input"));
   alert("Formato ChordPro aplicado.");
+}
+
+
+/* ===== Mostrar canto EXACTO como fue escrito ===== */
+function renderExactChart(raw) {
+  if (!raw) return "";
+  return `<pre class="exact-chart">${String(raw)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")}</pre>`;
 }

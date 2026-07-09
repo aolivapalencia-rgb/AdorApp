@@ -1115,3 +1115,17 @@ textarea.pro-code-area {
 body.pro-song-editor-mode .chordpro-chords {
   color: #64b5f6;
 }
+
+/* ===== Vista exacta de cantos ===== */
+.exact-chart {
+  font-family: "Courier New", monospace !important;
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+  white-space: pre !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  background: transparent !important;
+  color: inherit !important;
+  margin: 20px 0 !important;
+  padding: 0 !important;
+}
