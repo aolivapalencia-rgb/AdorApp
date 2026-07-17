@@ -1587,3 +1587,34 @@ setTimeout(() => {
   }
 }, 150);
 
+
+/* ===== CORRECCIÓN: recuperar y mostrar las 125 fichas ===== */
+
+if (typeof oldRenderSongsManual === "function") {
+  renderSongs = function(list) {
+    const songList = Array.isArray(list) ? list : songs;
+
+    oldRenderSongsManual(songList);
+
+    setTimeout(() => {
+      document.querySelectorAll(".song-card").forEach(card => {
+        card.classList.add("small-song-card");
+      });
+    }, 50);
+  };
+}
+
+/* Volver a aplicar las ediciones guardadas sin reemplazar el catálogo */
+if (typeof adorApplySavedEdits === "function") {
+  adorApplySavedEdits();
+}
+
+/* Mostrar nuevamente el catálogo */
+setTimeout(() => {
+  if (typeof filterSongs === "function") {
+    filterSongs();
+  } else if (typeof renderSongs === "function") {
+    renderSongs(songs);
+  }
+}, 100);
+
