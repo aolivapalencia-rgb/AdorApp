@@ -1242,3 +1242,51 @@ body.pro-song-editor-mode .chordpro-chords {
   font-size: 18px !important;
   background: transparent !important;
 }
+
+/* ===== Botón para editar las 125 fichas existentes ===== */
+
+.edit-existing-song-btn {
+  display: block;
+  width: calc(100% - 32px);
+  max-width: 620px;
+  margin: 16px auto 24px;
+  padding: 17px 20px;
+  border: none;
+  border-radius: 15px;
+  background: #1f6fc7;
+  color: #fff;
+  font-size: 21px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, .18);
+}
+
+.edit-existing-song-btn:active {
+  transform: scale(.98);
+}
+
+/* Editor manual tipo hoja */
+.edit-sheet textarea#editLyrics {
+  min-height: 70vh !important;
+  height: 70vh !important;
+  font-family: "Courier New", monospace !important;
+  font-size: 18px !important;
+  line-height: 1.4 !important;
+  white-space: pre !important;
+  overflow: auto !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  tab-size: 4;
+}
+
+/* Evitar que esta hoja cambie obligatoriamente a modo oscuro */
+.edit-sheet {
+  background: #fff !important;
+  color: #111 !important;
+}
+
+.edit-sheet input,
+.edit-sheet textarea {
+  background: #fff !important;
+  color: #111 !important;
+}

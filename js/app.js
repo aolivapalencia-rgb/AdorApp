@@ -1155,3 +1155,53 @@ if (typeof renderChordLyrics === "function") {
     return renderExactChart(raw);
   };
 }
+
+/* ===== Corrección definitiva: editar fichas desde openSong ===== */
+
+const adorOriginalOpenSong = openSong;
+
+openSong = function(songId) {
+  adorOriginalOpenSong(songId);
+
+  setTimeout(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+
+    /* Evitar botones duplicados */
+    document.getElementById("editExistingSongBtn")?.remove();
+
+    const editBtn = document.createElement("button");
+    editBtn.id = "editExistingSongBtn";
+    editBtn.type = "button";
+    editBtn.className = "edit-existing-song-btn";
+    editBtn.innerHTML = "✏️ Editar ficha";
+    editBtn.addEventListener("click", () => openEditSongSheet(songId));
+
+    /*
+      Colocarlo después del botón Volver.
+      Si no se encuentra, se coloca al inicio de la ficha.
+    */
+    const buttons = [...main.querySelectorAll("button")];
+    const backButton = buttons.find(btn =>
+      btn.textContent.toLowerCase().includes("volver")
+    );
+
+    if (backButton) {
+      backButton.insertAdjacentElement("afterend", editBtn);
+    } else {
+      main.prepend(editBtn);
+    }
+
+    /* Ocultar visualmente la información "Acordes" sin reconstruir la ficha */
+    main.querySelectorAll("p, div").forEach(element => {
+      const text = element.textContent.trim();
+
+      if (
+        /^Acordes:/i.test(text) &&
+        element.children.length <= 2
+      ) {
+        element.style.display = "none";
+      }
+    });
+  }, 100);
+};
